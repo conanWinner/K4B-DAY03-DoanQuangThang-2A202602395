@@ -99,9 +99,9 @@ UI có chat, sửa system prompt, trạng thái tool và Observation. API UI đ�
 - [x] Có trace chính và trích đoạn thực chạy trong báo cáo.
 - [x] Thử CLI nhiều lượt, xác nhận lịch và kiểm tra JSON.
 - [x] 33 kiểm thử tự động local đạt.
-- [ ] Commit/push bản hoàn thiện và xác minh GitHub.
+- [x] Commit/push bản hoàn thiện và xác minh GitHub: commit `3858ed6`, nhánh `main` trên remote khớp commit local.
 - [ ] Nộp URL repository lên LMS VLearn (học viên thực hiện).
 
-Repository: https://github.com/conanWinner/K4B-DAY03-DoanQuangThang-02395
+Repository: https://github.com/conanWinner/K4B-DAY03-DoanQuangThang-2A202602395
 
 Giới hạn: dữ liệu lô mô phỏng; dự báo từ API thật; lưu lịch JSON cục bộ, chưa điều khiển thiết bị. MCP là mô phỏng trong tiến trình theo starter, chưa có transport/handshake đầy đủ. Môi trường chạy Python 3.13.12; CODELAB khuyến nghị 3.10–3.12, chưa kiểm tra lại trên các phiên bản này. Ứng dụng không tự chọn thuốc/liều hoặc bảo đảm an toàn phun.
