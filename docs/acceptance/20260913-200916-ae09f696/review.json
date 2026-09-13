@@ -1,0 +1,14 @@
+{
+  "status": "REVIEWED",
+  "provider": "NineRouterProvider",
+  "requested_model": "cx/gpt-5.5",
+  "case_verdicts": {"TC01": "PASS", "TC02": "PASS", "TC03": "PASS", "TC04": "PASS_WITH_NOTE", "TC05": "PASS"},
+  "note": "TC04 đạt luồng tool và không ghi lịch; gợi ý thời tiết chưa được chuyên gia nông nghiệp thẩm định. Có thể cải thiện bằng câu hỏi trực tiếp về sản phẩm.",
+  "tc03_json_verified": true,
+  "interactive_live_verified": true,
+  "interactive_json_verified": true,
+  "baseline_verified": true,
+  "unit_tests_passed": 33,
+  "report": "../../trace_eval.md",
+  "supersedes": "Các summary snapshot trước đó là trạng thái tự động trước khi đọc kết quả."
+}

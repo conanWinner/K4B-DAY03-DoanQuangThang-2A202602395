@@ -1,233 +1,154 @@
-"""
-🔌 MULTI-PROVIDER LLM ADAPTER (Google Gemini, OpenAI & Offline Mock)
-Hỗ trợ Native Tool Calling và chuyển đổi linh hoạt qua biến môi trường LLM_PROVIDER.
-"""
-
-import os
-import sys
+"""Native tool calling với lịch sử hội thoại; không fallback khi API lỗi."""
 import json
-from typing import Dict, Any, List
+import os
+from uuid import uuid4
 from dotenv import load_dotenv
-
-if sys.stdout.encoding != 'utf-8':
-    try:
-        sys.stdout.reconfigure(encoding='utf-8')
-    except Exception:
-        pass
 
 load_dotenv()
 
+
+class ProviderError(RuntimeError):
+    pass
+
+
 class BaseLLMProvider:
-    """Interface cơ sở cho các LLM Provider hỗ trợ Native Tool Calling"""
-    def generate(self, prompt: str, system_prompt: str = "") -> str:
-        raise NotImplementedError
+    is_mock = False
 
-    def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
-        raise NotImplementedError
-
-
-class MockOfflineProvider(BaseLLMProvider):
-    """Offline Mock Provider dùng để chạy thử mà không tốn API Key"""
-    def __init__(self):
-        self.model_name = "Offline-Mock-Model-2026"
-
-    def generate(self, prompt: str, system_prompt: str = "") -> str:
-        return f"[Mock Chatbot Response]: Xin chào! Tôi đã nhận được câu hỏi '{prompt}'. (Chế độ Chatbot không có Tool tra cứu dữ liệu thời gian thực)."
-
-    def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
-        prompt_lower = prompt.lower()
-        
-        # Mô phỏng nhận diện intent gọi Tool
-        if "sv2026001" in prompt_lower and "đặt lịch" in prompt_lower:
-            return {
-                "type": "tool_call",
-                "tool_name": "schedule_appointment",
-                "arguments": {"student_id": "SV2026001", "datetime_str": "14:00 15/09/2026", "advisor_name": "PGS.TS Nguyễn Văn A"},
-                "thought": "Người dùng yêu cầu đặt lịch hẹn tư vấn cho sinh viên SV2026001. Tôi sẽ gọi tool schedule_appointment."
-            }
-        elif "sv2026001" in prompt_lower or "tra cứu" in prompt_lower:
-            return {
-                "type": "tool_call",
-                "tool_name": "academic_query",
-                "arguments": {"student_id": "SV2026001"},
-                "thought": "Người dùng muốn tra cứu thông tin học vụ của sinh viên SV2026001. Tôi sẽ gọi tool academic_query."
-            }
-        else:
-            return {
-                "type": "text",
-                "content": f"[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-                "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool."
-            }
-
-
-class GeminiProvider(BaseLLMProvider):
-    """Google Gemini Provider (Native Tool Calling với Google GenAI SDK)"""
-    def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY")
-        self.model_name = model or os.getenv("LLM_MODEL") or "gemini-2.5-flash"
-
-    def generate(self, prompt: str, system_prompt: str = "") -> str:
-        if not self.api_key or self.api_key == "your_gemini_api_key_here":
-            return "[Gemini Error]: Chưa cấu hình GEMINI_API_KEY trong file .env! Đang sử dụng chế độ Mock."
-        try:
-            from google import genai
-            client = genai.Client(api_key=self.api_key)
-            contents = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
-            response = client.models.generate_content(model=self.model_name, contents=contents)
-            return response.text
-        except Exception as e:
-            return f"[Gemini Exception]: {str(e)}"
-
-    def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
-        if not self.api_key or self.api_key == "your_gemini_api_key_here":
-            print("ℹ️ [Gemini Provider]: Chưa tìm thấy GEMINI_API_KEY hợp lệ. Tự động chuyển sang Mock Offline.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
-        
-        try:
-            from google import genai
-            from google.genai import types
-
-            client = genai.Client(api_key=self.api_key)
-            
-            # Chuẩn hóa function declarations cho Gemini SDK
-            function_declarations = []
-            for tool in tools_schema:
-                # Bỏ qua các tool schema chưa được định nghĩa hoàn chỉnh
-                if not tool.get("name") or not tool.get("parameters"):
-                    continue
-                function_declarations.append({
-                    "name": tool["name"],
-                    "description": tool.get("description", ""),
-                    "parameters": tool.get("parameters", {})
-                })
-
-            config = types.GenerateContentConfig(
-                system_instruction=system_prompt if system_prompt else None,
-                tools=[{"function_declarations": function_declarations}] if function_declarations else None,
-                temperature=0.2
-            )
-
-            response = client.models.generate_content(
-                model=self.model_name,
-                contents=prompt,
-                config=config
-            )
-
-            # Kiểm tra xem Gemini có trả về Tool Call không
-            if response.function_calls:
-                call = response.function_calls[0]
-                args = dict(call.args) if hasattr(call, 'args') and call.args else {}
-                return {
-                    "type": "tool_call",
-                    "tool_name": call.name,
-                    "arguments": args,
-                    "thought": f"Gemini quyết định gọi công cụ '{call.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
-                }
-            else:
-                return {
-                    "type": "text",
-                    "content": response.text or "",
-                    "thought": "Gemini phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
-                }
-
-        except Exception as e:
-            print(f"⚠️ [Gemini API Warning]: Không thể kết nối live API ({str(e)}). Tự động fallback về Mock.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+    def generate(self, prompt, system_prompt=''):
+        return self.generate_with_tools([{'role': 'user', 'content': prompt}], [], system_prompt)['content']
 
 
 class OpenAIProvider(BaseLLMProvider):
-    """OpenAI Provider (Native Tool Calling với OpenAI SDK)"""
-    def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model_name = model or os.getenv("LLM_MODEL") or "gpt-4o-mini"
+    def __init__(self, api_key=None, model=None):
+        from openai import OpenAI
+        key = api_key or os.getenv('OPENAI_API_KEY')
+        if not key or key.startswith('your_'):
+            raise ProviderError('Chưa cấu hình OPENAI_API_KEY.')
+        self.model_name = model or os.getenv('LLM_MODEL') or 'gpt-4o-mini'
+        self.client = OpenAI(api_key=key, timeout=30, max_retries=0)
 
-    def generate(self, prompt: str, system_prompt: str = "") -> str:
-        if not self.api_key or self.api_key == "your_openai_api_key_here":
-            return "[OpenAI Error]: Chưa cấu hình OPENAI_API_KEY trong file .env! Đang sử dụng chế độ Mock."
-        try:
-            from openai import OpenAI
-            client = OpenAI(api_key=self.api_key)
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
-            response = client.chat.completions.create(model=self.model_name, messages=messages)
-            return response.choices[0].message.content or ""
-        except Exception as e:
-            return f"[OpenAI Exception]: {str(e)}"
-
-    def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
-        if not self.api_key or self.api_key == "your_openai_api_key_here":
-            print("ℹ️ [OpenAI Provider]: Chưa tìm thấy OPENAI_API_KEY hợp lệ. Tự động chuyển sang Mock Offline.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
-
-        try:
-            from openai import OpenAI
-            client = OpenAI(api_key=self.api_key)
-
-            tools = []
-            for tool in tools_schema:
-                if not tool.get("name"):
-                    continue
-                tools.append({
-                    "type": "function",
-                    "function": {
-                        "name": tool["name"],
-                        "description": tool.get("description", ""),
-                        "parameters": tool.get("parameters", {})
-                    }
-                })
-
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
-
-            response = client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                tools=tools if tools else None,
-                tool_choice="auto" if tools else None
-            )
-
-            msg = response.choices[0].message
-            if msg.tool_calls:
-                call = msg.tool_calls[0]
-                args = json.loads(call.function.arguments) if call.function.arguments else {}
-                return {
-                    "type": "tool_call",
-                    "tool_name": call.function.name,
-                    "arguments": args,
-                    "thought": f"OpenAI quyết định gọi công cụ '{call.function.name}' với tham số: {json.dumps(args, ensure_ascii=False)}"
-                }
+    def generate_with_tools(self, history, tools_schema, system_prompt=''):
+        messages = [{'role': 'system', 'content': system_prompt}]
+        for entry in history:
+            if entry['role'] == 'assistant':
+                messages.append(entry['openai'] if 'openai' in entry else {
+                    'role': 'assistant', 'content': entry.get('content', '')})
+            elif entry['role'] == 'tool':
+                messages.append({'role': 'tool', 'tool_call_id': entry['id'],
+                                 'content': json.dumps(entry['result'], ensure_ascii=False)})
             else:
-                return {
-                    "type": "text",
-                    "content": msg.content or "",
-                    "thought": "OpenAI phản hồi trực tiếp bằng văn bản (không cần gọi công cụ)."
-                }
-        except Exception as e:
-            print(f"⚠️ [OpenAI API Warning]: Không thể kết nối live API ({str(e)}). Tự động fallback về Mock.")
-            return MockOfflineProvider().generate_with_tools(prompt, tools_schema, system_prompt)
+                messages.append({'role': 'user', 'content': entry['content']})
+        try:
+            kwargs = dict(model=self.model_name, messages=messages)
+            if tools_schema:
+                kwargs.update(tools=[{'type': 'function', 'function': t} for t in tools_schema],
+                              parallel_tool_calls=False)
+            msg = self.client.chat.completions.create(**kwargs).choices[0].message
+            calls = [{'id': c.id, 'name': c.function.name, 'arguments': json.loads(c.function.arguments)}
+                     for c in msg.tool_calls or []]
+            return {'content': msg.content or '', 'calls': calls,
+                    'assistant': {'role': 'assistant', 'content': msg.content or '',
+                                  'openai': msg.model_dump(exclude_none=True)}}
+        except Exception as exc:
+            raise ProviderError(f'{type(self).__name__} thất bại ({type(exc).__name__}); không chuyển sang Mock.') from None
 
 
-def get_llm_provider() -> BaseLLMProvider:
-    """Factory function khởi tạo Provider theo LLM_PROVIDER env variable"""
-    provider_type = os.getenv("LLM_PROVIDER", "gemini").lower()
-    
-    if provider_type == "gemini":
-        key = os.getenv("GEMINI_API_KEY")
-        if key and key != "your_gemini_api_key_here":
-            return GeminiProvider()
+class NineRouterProvider(OpenAIProvider):
+    """9router dùng Chat Completions tương thích OpenAI, key riêng của router."""
+    def __init__(self, api_key=None, model=None, base_url=None):
+        from openai import OpenAI
+        from urllib.parse import urlsplit
+        key = api_key or os.getenv('NINE_ROUTER_API_KEY', '')
+        endpoint = (base_url or os.getenv('NINE_ROUTER_BASE_URL', '')).strip().rstrip('/')
+        selected_model = (model or os.getenv('NINE_ROUTER_MODEL', '')).strip()
+        if not endpoint:
+            raise ProviderError('Chưa cấu hình NINE_ROUTER_BASE_URL (URL API kết thúc bằng /v1).')
+        parsed = urlsplit(endpoint)
+        if (parsed.scheme not in ('http', 'https') or not parsed.hostname
+                or parsed.username or parsed.password or parsed.query or parsed.fragment
+                or not parsed.path.endswith('/v1')):
+            raise ProviderError('NINE_ROUTER_BASE_URL phải là URL http(s) kết thúc bằng /v1, không chứa key/query.')
+        if not selected_model or selected_model.startswith('your_'):
+            raise ProviderError('Chưa cấu hình NINE_ROUTER_MODEL: dùng đúng ID model/combo trên 9router.')
+        if not key or key.startswith('your_'):
+            raise ProviderError('Chưa cấu hình NINE_ROUTER_API_KEY: dùng key do 9router cấp.')
+        self.model_name = selected_model
+        self.client = OpenAI(api_key=key, base_url=endpoint, timeout=30, max_retries=0)
+
+
+class GeminiProvider(BaseLLMProvider):
+    def __init__(self, api_key=None, model=None):
+        from google import genai
+        from google.genai import types
+        key = api_key or os.getenv('GEMINI_API_KEY')
+        if not key or key.startswith('your_'):
+            raise ProviderError('Chưa cấu hình GEMINI_API_KEY.')
+        self.model_name = model or os.getenv('LLM_MODEL') or 'gemini-2.5-flash'
+        self.client = genai.Client(api_key=key, http_options=types.HttpOptions(
+            timeout=30000, retry_options=types.HttpRetryOptions(attempts=1)))
+
+    def generate_with_tools(self, history, tools_schema, system_prompt=''):
+        from google.genai import types
+        contents = []
+        for entry in history:
+            if 'gemini' in entry:
+                # Giữ nguyên Content, bao gồm thought_signature của provider.
+                contents.append(entry['gemini'])
+            elif entry['role'] == 'tool':
+                part = types.Part(function_response=types.FunctionResponse(
+                    name=entry['name'], id=entry.get('native_id'), response=entry['result']))
+                if contents and contents[-1].role == 'user' and contents[-1].parts[0].function_response:
+                    contents[-1].parts.append(part)
+                else:
+                    contents.append(types.Content(role='user', parts=[part]))
+            else:
+                contents.append(types.Content(role='model' if entry['role'] == 'assistant' else 'user',
+                                              parts=[types.Part(text=entry.get('content', ''))]))
+        try:
+            declarations = [types.FunctionDeclaration(name=t['name'], description=t['description'],
+                            parameters_json_schema=t['parameters']) for t in tools_schema]
+            config = types.GenerateContentConfig(system_instruction=system_prompt, temperature=0.2,
+                tools=[types.Tool(function_declarations=declarations)] if declarations else None,
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True))
+            response = self.client.models.generate_content(model=self.model_name, contents=contents, config=config)
+            content = response.candidates[0].content
+            calls, texts = [], []
+            for part in content.parts or []:
+                if part.function_call:
+                    c = part.function_call
+                    calls.append({'id': c.id or str(uuid4()), 'native_id': c.id,
+                                  'name': c.name, 'arguments': dict(c.args or {})})
+                elif part.text and not part.thought:
+                    texts.append(part.text)
+            text = '\n'.join(texts)
+            return {'content': text, 'calls': calls,
+                    'assistant': {'role': 'assistant', 'content': text, 'gemini': content}}
+        except Exception as exc:
+            raise ProviderError(f'Gemini thất bại ({type(exc).__name__}); không chuyển sang Mock.') from None
+
+
+class MockOfflineProvider(BaseLLMProvider):
+    """Demo hạn chế, không mô phỏng thời tiết thật hay tự ghi lịch."""
+    is_mock = True
+    model_name = 'offline-coffee-demo'
+
+    def generate_with_tools(self, history, tools_schema, system_prompt=''):
+        import re
+        query = next(e['content'] for e in reversed(history) if e['role'] == 'user')
+        if history[-1]['role'] == 'tool':
+            text = '[MOCK] Kết quả công cụ: ' + json.dumps(history[-1]['result'], ensure_ascii=False)
+            calls = []
         else:
-            return MockOfflineProvider()
-    elif provider_type == "openai":
-        key = os.getenv("OPENAI_API_KEY")
-        if key and key != "your_openai_api_key_here":
-            return OpenAIProvider()
-        else:
-            return MockOfflineProvider()
-    elif provider_type == "mock":
-        return MockOfflineProvider()
-    else:
-        return MockOfflineProvider()
+            match = re.search(r'CF\d+', query, re.I)
+            calls = ([{'id': str(uuid4()), 'name': 'get_plot_info', 'arguments': {'plot_id': match[0]}}]
+                     if match and tools_schema else [])
+            text = '' if calls else '[MOCK] Tôi hỗ trợ tra cứu lô, xem dự báo và ghi lịch. Demo offline chỉ hỗ trợ tra cứu lô; dùng provider thật để hội thoại đầy đủ.'
+        return {'content': text, 'calls': calls, 'assistant': {'role': 'assistant', 'content': text}}
+
+
+def get_llm_provider():
+    kind = os.getenv('LLM_PROVIDER', 'mock').lower()
+    factory = {'gemini': GeminiProvider, 'openai': OpenAIProvider, 'mock': MockOfflineProvider, '9router': NineRouterProvider}
+    if kind not in factory:
+        raise ProviderError('LLM_PROVIDER phải là 9router, gemini, openai hoặc mock.')
+    return factory[kind]()

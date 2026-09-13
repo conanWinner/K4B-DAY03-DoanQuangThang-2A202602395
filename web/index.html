@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Giao diện quan sát ReAct Agent chăm sóc cà phê">
+  <title>Cà Phê Agent Lab</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#chat">Đi tới khu chat</a>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Cà Phê Agent Lab"><span class="brand-mark" aria-hidden="true">C</span><span><strong>Cà Phê Agent</strong><small>ReAct Lab Console</small></span></a>
+    <div class="provider-pill" id="provider-pill"><span class="status-dot"></span><span>Đang kiểm tra…</span></div>
+  </header>
+  <main class="layout">
+    <section class="workspace" id="chat" aria-labelledby="chat-title">
+      <div class="section-heading"><div><p class="eyebrow">WORKSPACE</p><h1 id="chat-title">Trợ lý chăm sóc cà phê</h1></div><button class="ghost-button" id="new-session" type="button">Phiên mới</button></div>
+      <div class="quick-prompts" aria-label="Câu hỏi gợi ý">
+        <button type="button" data-prompt="Tra cứu thông tin lô CF001.">Tra cứu CF001</button>
+        <button type="button" data-prompt="Tra cứu lô CF001 và xem dự báo 3 ngày tới để đề xuất thời điểm phun thuốc. Tôi chưa chọn sản phẩm và chưa chốt giờ; chưa tạo lịch.">Xem thời tiết để phun</button>
+        <button type="button" data-prompt="Tra cứu lô CF999 và ghi lịch kiểm tra hệ thống tưới lúc 07:00 ngày mai.">Thử lô không tồn tại</button>
+      </div>
+      <div class="conversation" id="conversation" aria-live="polite">
+        <article class="message assistant-message"><div class="avatar" aria-hidden="true">AI</div><div><span class="message-label">TRỢ LÝ</span><p>Chào bạn. Tôi có thể tra cứu lô cà phê, xem dự báo thời tiết và ghi lịch chăm sóc. Mọi bước gọi công cụ sẽ xuất hiện ở bảng quan sát bên phải.</p></div></article>
+      </div>
+      <form class="composer" id="chat-form">
+        <label class="sr-only" for="message-input">Nhập câu hỏi</label>
+        <textarea id="message-input" rows="3" maxlength="8000" placeholder="Ví dụ: Xem dự báo thời tiết lô CF001 trong 3 ngày tới…" required></textarea>
+        <div class="composer-footer"><label class="schedule-toggle" title="Bạn cũng có thể gõ: Tôi đồng ý lưu lịch"><input id="allow-schedule" type="checkbox"><span>Cho phép ghi lịch (hoặc xác nhận qua chat)</span></label><button class="send-button" id="send-button" type="submit"><span>Gửi yêu cầu</span><span aria-hidden="true">↗</span></button></div>
+      </form>
+    </section>
+    <aside class="inspector" aria-label="Quan sát Agent">
+      <section class="panel prompt-panel"><div class="panel-heading"><div><p class="eyebrow">CONTROL</p><h2>System prompt</h2></div><span id="prompt-state">Mặc định</span></div><label class="sr-only" for="system-prompt">System prompt</label><textarea id="system-prompt" maxlength="16000" spellcheck="false"></textarea><p class="hint">Prompt này áp dụng ngay cho lượt tiếp theo.</p></section>
+      <section class="panel trace-panel"><div class="panel-heading"><div><p class="eyebrow">OBSERVABILITY</p><h2>Agent trace</h2></div><span class="trace-count" id="trace-count">0 bước</span></div><div class="active-tool" id="active-tool" hidden><span class="pulse-ring" aria-hidden="true"></span><div><small>ĐANG GỌI TOOL</small><strong id="active-tool-name"></strong></div></div><ol class="trace-list" id="trace-list"><li class="empty-trace"><span>01</span><p>Gửi câu hỏi để xem luồng LLM → Tool → Observation → Final answer.</p></li></ol></section>
+      <section class="panel tools-panel"><div class="panel-heading"><div><p class="eyebrow">MCP REGISTRY</p><h2>Công cụ khả dụng</h2></div></div><div id="tool-registry" class="tool-registry"></div></section>
+    </aside>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>

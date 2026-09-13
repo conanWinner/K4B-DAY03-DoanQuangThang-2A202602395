@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-09-13T20:08:17.239039+07:00",
+  "status": "BLOCKED",
+  "python": "3.13.12",
+  "cases": [],
+  "manual_review_required": true,
+  "scope": "5 ca độc lập; chưa thay thế kiểm tra CLI nhiều lượt hoặc đánh giá nội dung cuối.",
+  "provider": "NineRouterProvider",
+  "model": "cx/gpt-5.5",
+  "reason": "NineRouterProvider thất bại (APIConnectionError); không chuyển sang Mock."
+}

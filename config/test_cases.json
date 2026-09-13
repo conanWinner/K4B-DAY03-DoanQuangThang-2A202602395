@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "direct_query",
+    "question": "Bạn có thể hỗ trợ những công việc gì khi chăm sóc cây cà phê?",
+    "expected_behavior": "Trả lời phạm vi tra cứu lô, dự báo và ghi lịch; không gọi tool, không bịa dữ liệu thời tiết.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "weather_query",
+    "question": "Xem dự báo thời tiết trong 3 ngày tới tại tọa độ 12.6667, 108.05 ở Đắk Lắk.",
+    "expected_behavior": "Gọi get_weather_forecast với đúng tọa độ và days=3; nêu nguồn, thời gian cập nhật, mưa và gió từ kết quả. Nếu API lỗi thì báo không lấy được dự báo; không dùng dữ liệu giả thay thế.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC03",
+    "type": "farm_task_scheduling",
+    "question": "Ghi lịch kiểm tra hệ thống tưới cho lô CF001 lúc 07:00 ngày mai, ghi chú kiểm tra đầu tưới bị tắc.",
+    "expected_behavior": "Gọi schedule_farm_task cho CF001 với công việc kiểm tra hệ thống tưới, thời gian 07:00 ngày mai theo Asia/Ho_Chi_Minh và đúng ghi chú. Chỉ báo thành công khi tool trả mã lịch và lịch được lưu; có thể tra cứu lô trước.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Tra cứu lô CF001 và xem dự báo 3 ngày tới để đề xuất thời điểm phun thuốc. Tôi chưa chọn sản phẩm và chưa chốt giờ; chưa tạo lịch.",
+    "expected_behavior": "Gọi get_plot_info trước rồi get_weather_forecast bằng tọa độ nhận được; trình bày dự báo, hỏi thông tin sản phẩm và thời điểm người dùng chọn. Không gọi schedule_farm_task, không tự chọn thuốc/liều hay khẳng định an toàn. Kiểm tra lượt tiếp theo trong CLI khi người dùng cung cấp đủ thông tin và yêu cầu ghi lịch.",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Tra cứu lô CF999 và ghi lịch kiểm tra hệ thống tưới lúc 07:00 ngày mai.",
+    "expected_behavior": "Nhận NOT_FOUND từ get_plot_info, thông báo lô không tồn tại, hỏi lại mã lô; không tạo lịch và không bịa vị trí/thời tiết.",
+    "complexity": "Medium"
+  }
+]

@@ -14,3 +14,19 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local farm schedules
+data/*.sqlite3
+data/*.sqlite3-*
+
+# Acceptance databases (traces and summaries remain versionable)
+docs/acceptance/**/*.sqlite3
+docs/acceptance/**/*.sqlite3-*
+
+# Lịch dạng text và file khóa/ghi tạm
+data/farm_tasks.json
+data/*.json.lock
+data/*.json.*.tmp
+docs/acceptance/**/farm_tasks.json
+docs/acceptance/**/*.json.lock
+docs/acceptance/**/*.json.*.tmp

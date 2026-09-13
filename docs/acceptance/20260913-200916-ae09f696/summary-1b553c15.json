@@ -1,0 +1,72 @@
+{
+  "started_at": "2026-09-13T20:09:16.643770+07:00",
+  "status": "RUNNING",
+  "python": "3.13.12",
+  "cases": [
+    {
+      "id": "TC01",
+      "structural_checks": {
+        "final_answer": true,
+        "no_runtime_error": true,
+        "no_tools": true
+      },
+      "structural_pass": true,
+      "confirmations": [],
+      "manual_verdict": "PENDING",
+      "expected_behavior": "Trả lời phạm vi tra cứu lô, dự báo và ghi lịch; không gọi tool, không bịa dữ liệu thời tiết."
+    },
+    {
+      "id": "TC02",
+      "structural_checks": {
+        "final_answer": true,
+        "no_runtime_error": true,
+        "live_forecast": true
+      },
+      "structural_pass": true,
+      "confirmations": [],
+      "manual_verdict": "PENDING",
+      "expected_behavior": "Gọi get_weather_forecast với đúng tọa độ và days=3; nêu nguồn, thời gian cập nhật, mưa và gió từ kết quả. Nếu API lỗi thì báo không lấy được dự báo; không dùng dữ liệu giả thay thế."
+    },
+    {
+      "id": "TC03",
+      "structural_checks": {
+        "final_answer": true,
+        "no_runtime_error": true,
+        "persisted_in_json": true
+      },
+      "structural_pass": true,
+      "confirmations": [
+        {
+          "arguments": {
+            "plot_id": "CF001",
+            "task_type": "irrigation_inspection",
+            "scheduled_at": "2026-09-14T07:00:00+07:00",
+            "notes": "kiểm tra đầu tưới bị tắc"
+          },
+          "approved": true,
+          "basis": "TC03 chỉ ghi DB nghiệm thu, không lịch sản xuất"
+        }
+      ],
+      "manual_verdict": "PENDING",
+      "expected_behavior": "Gọi schedule_farm_task cho CF001 với công việc kiểm tra hệ thống tưới, thời gian 07:00 ngày mai theo Asia/Ho_Chi_Minh và đúng ghi chú. Chỉ báo thành công khi tool trả mã lịch và lịch được lưu; có thể tra cứu lô trước."
+    },
+    {
+      "id": "TC04",
+      "structural_checks": {
+        "final_answer": true,
+        "no_runtime_error": true,
+        "no_scheduling": true,
+        "plot_then_weather": true
+      },
+      "structural_pass": true,
+      "confirmations": [],
+      "manual_verdict": "PENDING",
+      "expected_behavior": "Gọi get_plot_info trước rồi get_weather_forecast bằng tọa độ nhận được; trình bày dự báo, hỏi thông tin sản phẩm và thời điểm người dùng chọn. Không gọi schedule_farm_task, không tự chọn thuốc/liều hay khẳng định an toàn. Kiểm tra lượt tiếp theo trong CLI khi người dùng cung cấp đủ thông tin và yêu cầu ghi lịch."
+    }
+  ],
+  "manual_review_required": true,
+  "scope": "5 ca độc lập; chưa thay thế kiểm tra CLI nhiều lượt hoặc đánh giá nội dung cuối.",
+  "provider": "NineRouterProvider",
+  "model": "cx/gpt-5.5",
+  "probe": "Kết nối thành công."
+}

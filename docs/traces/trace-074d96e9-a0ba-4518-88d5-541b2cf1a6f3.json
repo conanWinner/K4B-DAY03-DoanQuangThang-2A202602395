@@ -1,0 +1,1384 @@
+[
+  {
+    "run_id": "57592dac-7194-44de-bd3e-6d4ba90927e5",
+    "case_id": "TC01",
+    "query": "Bạn có thể hỗ trợ những công việc gì khi chăm sóc cây cà phê?",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "FINAL_ANSWER",
+    "timestamp": "2026-09-13T14:58:39.784023+07:00",
+    "latency_ms": 9325.869,
+    "thought": "LLM trả lời từ ngữ cảnh và kết quả công cụ.",
+    "output": "Tôi có thể hỗ trợ bạn các việc sau trong chăm sóc cà phê:\n\n- Tra cứu thông tin lô cà phê theo mã lô.\n- Xem dự báo thời tiết theo vị trí lô cà phê.\n- Gợi ý thời điểm phù hợp hơn để tưới, bón phân, kiểm tra hệ thống tưới hoặc phun thuốc dựa trên dữ liệu thời tiết.\n- Ghi lịch công việc khi bạn đã chọn rõ thời gian và công việc.\n- Nhắc các điểm cần kiểm tra trước khi phun thuốc: sản phẩm, liều lượng, hướng dẫn trên nhãn, gió, mưa, thời gian cách ly và bảo hộ.\n\nLưu ý: Tôi không tự chọn thuốc, liều lượng, không điều khiển thiết bị, và không khẳng định phun thuốc “an toàn” chỉ dựa vào thời tiết."
+  },
+  {
+    "run_id": "c4405e22-5a2a-4183-bb4f-5d016a77e353",
+    "case_id": "TC02",
+    "query": "Xem dự báo thời tiết trong 3 ngày tới tại tọa độ 12.6667, 108.05 ở Đắk Lắk.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "LLM_TOOL_CALLS",
+    "timestamp": "2026-09-13T14:58:44.536820+07:00",
+    "latency_ms": 4752.75,
+    "thought": "LLM đề xuất gọi công cụ; đây là tóm tắt hành động, không phải suy luận nội bộ.",
+    "calls": [
+      {
+        "id": "call_zMYfmOyJGu6rDJ7dxdyDoA1D",
+        "name": "get_weather_forecast",
+        "arguments": {
+          "latitude": 12.6667,
+          "longitude": 108.05,
+          "days": 3
+        }
+      }
+    ]
+  },
+  {
+    "run_id": "c4405e22-5a2a-4183-bb4f-5d016a77e353",
+    "case_id": "TC02",
+    "query": "Xem dự báo thời tiết trong 3 ngày tới tại tọa độ 12.6667, 108.05 ở Đắk Lắk.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "TOOL_EXECUTION",
+    "timestamp": "2026-09-13T14:58:45.843552+07:00",
+    "latency_ms": 1306.71,
+    "tool_call_id": "call_zMYfmOyJGu6rDJ7dxdyDoA1D",
+    "tool_name": "get_weather_forecast",
+    "arguments": {
+      "latitude": 12.6667,
+      "longitude": 108.05,
+      "days": 3
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "source": "Open-Meteo",
+      "source_url": "https://api.open-meteo.com/v1/forecast",
+      "data_source": "LIVE_API",
+      "retrieved_at": "2026-09-13T14:58:45.840853+07:00",
+      "model_updated_at": null,
+      "note": "retrieved_at là lúc lấy dữ liệu, không phải lúc mô hình cập nhật. Dự báo có thể thay đổi; không chứng nhận điều kiện phun thuốc.",
+      "timezone": "Asia/Ho_Chi_Minh",
+      "requested_location": {
+        "latitude": 12.6667,
+        "longitude": 108.05
+      },
+      "units": {
+        "time": "iso8601",
+        "temperature_2m": "°C",
+        "relative_humidity_2m": "%",
+        "precipitation_probability": "%",
+        "precipitation": "mm",
+        "wind_speed_10m": "km/h",
+        "wind_gusts_10m": "km/h"
+      },
+      "hourly": [
+        {
+          "time": "2026-09-13T15:00:00+07:00",
+          "temperature_2m": 29.4,
+          "relative_humidity_2m": 63,
+          "precipitation_probability": 69,
+          "precipitation": 0.0,
+          "wind_speed_10m": 12.4,
+          "wind_gusts_10m": 37.1
+        },
+        {
+          "time": "2026-09-13T16:00:00+07:00",
+          "temperature_2m": 28.1,
+          "relative_humidity_2m": 69,
+          "precipitation_probability": 76,
+          "precipitation": 0.1,
+          "wind_speed_10m": 12.2,
+          "wind_gusts_10m": 28.8
+        },
+        {
+          "time": "2026-09-13T17:00:00+07:00",
+          "temperature_2m": 24.5,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 80,
+          "precipitation": 1.1,
+          "wind_speed_10m": 8.6,
+          "wind_gusts_10m": 25.2
+        },
+        {
+          "time": "2026-09-13T18:00:00+07:00",
+          "temperature_2m": 24.1,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 81,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.8,
+          "wind_gusts_10m": 17.6
+        },
+        {
+          "time": "2026-09-13T19:00:00+07:00",
+          "temperature_2m": 24.5,
+          "relative_humidity_2m": 93,
+          "precipitation_probability": 78,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.2,
+          "wind_gusts_10m": 5.4
+        },
+        {
+          "time": "2026-09-13T20:00:00+07:00",
+          "temperature_2m": 24.7,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 67,
+          "precipitation": 0.1,
+          "wind_speed_10m": 1.5,
+          "wind_gusts_10m": 2.9
+        },
+        {
+          "time": "2026-09-13T21:00:00+07:00",
+          "temperature_2m": 23.8,
+          "relative_humidity_2m": 95,
+          "precipitation_probability": 52,
+          "precipitation": 0.1,
+          "wind_speed_10m": 3.8,
+          "wind_gusts_10m": 7.2
+        },
+        {
+          "time": "2026-09-13T22:00:00+07:00",
+          "temperature_2m": 23.7,
+          "relative_humidity_2m": 95,
+          "precipitation_probability": 39,
+          "precipitation": 0.2,
+          "wind_speed_10m": 1.0,
+          "wind_gusts_10m": 6.1
+        },
+        {
+          "time": "2026-09-13T23:00:00+07:00",
+          "temperature_2m": 23.6,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 33,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.7,
+          "wind_gusts_10m": 2.2
+        },
+        {
+          "time": "2026-09-14T00:00:00+07:00",
+          "temperature_2m": 23.5,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 29,
+          "precipitation": 0.0,
+          "wind_speed_10m": 3.6,
+          "wind_gusts_10m": 5.4
+        },
+        {
+          "time": "2026-09-14T01:00:00+07:00",
+          "temperature_2m": 23.0,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 25,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.4,
+          "wind_gusts_10m": 6.5
+        },
+        {
+          "time": "2026-09-14T02:00:00+07:00",
+          "temperature_2m": 22.8,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 20,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.6,
+          "wind_gusts_10m": 7.2
+        },
+        {
+          "time": "2026-09-14T03:00:00+07:00",
+          "temperature_2m": 22.7,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 15,
+          "precipitation": 0.0,
+          "wind_speed_10m": 3.4,
+          "wind_gusts_10m": 7.2
+        },
+        {
+          "time": "2026-09-14T04:00:00+07:00",
+          "temperature_2m": 22.9,
+          "relative_humidity_2m": 90,
+          "precipitation_probability": 10,
+          "precipitation": 0.0,
+          "wind_speed_10m": 0.9,
+          "wind_gusts_10m": 4.7
+        },
+        {
+          "time": "2026-09-14T05:00:00+07:00",
+          "temperature_2m": 22.9,
+          "relative_humidity_2m": 90,
+          "precipitation_probability": 6,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.3,
+          "wind_gusts_10m": 2.2
+        },
+        {
+          "time": "2026-09-14T06:00:00+07:00",
+          "temperature_2m": 22.7,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 4,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.0,
+          "wind_gusts_10m": 5.8
+        },
+        {
+          "time": "2026-09-14T07:00:00+07:00",
+          "temperature_2m": 24.2,
+          "relative_humidity_2m": 87,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.8,
+          "wind_gusts_10m": 14.8
+        },
+        {
+          "time": "2026-09-14T08:00:00+07:00",
+          "temperature_2m": 25.6,
+          "relative_humidity_2m": 82,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.2,
+          "wind_gusts_10m": 17.3
+        },
+        {
+          "time": "2026-09-14T09:00:00+07:00",
+          "temperature_2m": 27.0,
+          "relative_humidity_2m": 75,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 6.1,
+          "wind_gusts_10m": 18.7
+        },
+        {
+          "time": "2026-09-14T10:00:00+07:00",
+          "temperature_2m": 28.2,
+          "relative_humidity_2m": 69,
+          "precipitation_probability": 4,
+          "precipitation": 0.0,
+          "wind_speed_10m": 9.2,
+          "wind_gusts_10m": 28.8
+        },
+        {
+          "time": "2026-09-14T11:00:00+07:00",
+          "temperature_2m": 28.4,
+          "relative_humidity_2m": 68,
+          "precipitation_probability": 6,
+          "precipitation": 0.1,
+          "wind_speed_10m": 6.8,
+          "wind_gusts_10m": 28.4
+        },
+        {
+          "time": "2026-09-14T12:00:00+07:00",
+          "temperature_2m": 29.4,
+          "relative_humidity_2m": 65,
+          "precipitation_probability": 8,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.1,
+          "wind_gusts_10m": 24.1
+        },
+        {
+          "time": "2026-09-14T13:00:00+07:00",
+          "temperature_2m": 30.0,
+          "relative_humidity_2m": 64,
+          "precipitation_probability": 16,
+          "precipitation": 0.0,
+          "wind_speed_10m": 5.3,
+          "wind_gusts_10m": 25.2
+        },
+        {
+          "time": "2026-09-14T14:00:00+07:00",
+          "temperature_2m": 27.8,
+          "relative_humidity_2m": 77,
+          "precipitation_probability": 33,
+          "precipitation": 0.8,
+          "wind_speed_10m": 8.0,
+          "wind_gusts_10m": 28.4
+        },
+        {
+          "time": "2026-09-14T15:00:00+07:00",
+          "temperature_2m": 26.1,
+          "relative_humidity_2m": 82,
+          "precipitation_probability": 55,
+          "precipitation": 2.2,
+          "wind_speed_10m": 3.3,
+          "wind_gusts_10m": 20.2
+        },
+        {
+          "time": "2026-09-14T16:00:00+07:00",
+          "temperature_2m": 24.5,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 73,
+          "precipitation": 3.5,
+          "wind_speed_10m": 6.7,
+          "wind_gusts_10m": 18.0
+        },
+        {
+          "time": "2026-09-14T17:00:00+07:00",
+          "temperature_2m": 24.6,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 84,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.4,
+          "wind_gusts_10m": 18.4
+        },
+        {
+          "time": "2026-09-14T18:00:00+07:00",
+          "temperature_2m": 23.2,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 91,
+          "precipitation": 4.0,
+          "wind_speed_10m": 1.8,
+          "wind_gusts_10m": 15.8
+        },
+        {
+          "time": "2026-09-14T19:00:00+07:00",
+          "temperature_2m": 23.0,
+          "relative_humidity_2m": 98,
+          "precipitation_probability": 92,
+          "precipitation": 2.7,
+          "wind_speed_10m": 7.1,
+          "wind_gusts_10m": 12.2
+        },
+        {
+          "time": "2026-09-14T20:00:00+07:00",
+          "temperature_2m": 23.1,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 85,
+          "precipitation": 0.8,
+          "wind_speed_10m": 4.1,
+          "wind_gusts_10m": 13.0
+        },
+        {
+          "time": "2026-09-14T21:00:00+07:00",
+          "temperature_2m": 23.1,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 71,
+          "precipitation": 0.1,
+          "wind_speed_10m": 3.9,
+          "wind_gusts_10m": 7.9
+        },
+        {
+          "time": "2026-09-14T22:00:00+07:00",
+          "temperature_2m": 23.0,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 57,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.2,
+          "wind_gusts_10m": 6.8
+        },
+        {
+          "time": "2026-09-14T23:00:00+07:00",
+          "temperature_2m": 22.9,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 43,
+          "precipitation": 0.0,
+          "wind_speed_10m": 3.5,
+          "wind_gusts_10m": 6.1
+        },
+        {
+          "time": "2026-09-15T00:00:00+07:00",
+          "temperature_2m": 22.5,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 28,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.0,
+          "wind_gusts_10m": 11.9
+        },
+        {
+          "time": "2026-09-15T01:00:00+07:00",
+          "temperature_2m": 22.4,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 16,
+          "precipitation": 0.0,
+          "wind_speed_10m": 6.9,
+          "wind_gusts_10m": 12.2
+        },
+        {
+          "time": "2026-09-15T02:00:00+07:00",
+          "temperature_2m": 22.4,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 10,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.7,
+          "wind_gusts_10m": 11.5
+        },
+        {
+          "time": "2026-09-15T03:00:00+07:00",
+          "temperature_2m": 22.3,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 6,
+          "precipitation": 0.0,
+          "wind_speed_10m": 6.5,
+          "wind_gusts_10m": 10.4
+        },
+        {
+          "time": "2026-09-15T04:00:00+07:00",
+          "temperature_2m": 22.1,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 4,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.5,
+          "wind_gusts_10m": 13.3
+        },
+        {
+          "time": "2026-09-15T05:00:00+07:00",
+          "temperature_2m": 22.0,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.4,
+          "wind_gusts_10m": 12.6
+        },
+        {
+          "time": "2026-09-15T06:00:00+07:00",
+          "temperature_2m": 22.2,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 1,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.7,
+          "wind_gusts_10m": 12.6
+        },
+        {
+          "time": "2026-09-15T07:00:00+07:00",
+          "temperature_2m": 23.5,
+          "relative_humidity_2m": 95,
+          "precipitation_probability": 0,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.4,
+          "wind_gusts_10m": 15.5
+        },
+        {
+          "time": "2026-09-15T08:00:00+07:00",
+          "temperature_2m": 25.1,
+          "relative_humidity_2m": 88,
+          "precipitation_probability": 0,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.5,
+          "wind_gusts_10m": 15.1
+        },
+        {
+          "time": "2026-09-15T09:00:00+07:00",
+          "temperature_2m": 27.2,
+          "relative_humidity_2m": 77,
+          "precipitation_probability": 0,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.3,
+          "wind_gusts_10m": 13.7
+        },
+        {
+          "time": "2026-09-15T10:00:00+07:00",
+          "temperature_2m": 28.5,
+          "relative_humidity_2m": 68,
+          "precipitation_probability": 2,
+          "precipitation": 0.1,
+          "wind_speed_10m": 5.1,
+          "wind_gusts_10m": 16.6
+        },
+        {
+          "time": "2026-09-15T11:00:00+07:00",
+          "temperature_2m": 29.3,
+          "relative_humidity_2m": 64,
+          "precipitation_probability": 14,
+          "precipitation": 0.2,
+          "wind_speed_10m": 7.7,
+          "wind_gusts_10m": 20.5
+        },
+        {
+          "time": "2026-09-15T12:00:00+07:00",
+          "temperature_2m": 29.8,
+          "relative_humidity_2m": 65,
+          "precipitation_probability": 31,
+          "precipitation": 0.3,
+          "wind_speed_10m": 9.4,
+          "wind_gusts_10m": 24.1
+        },
+        {
+          "time": "2026-09-15T13:00:00+07:00",
+          "temperature_2m": 29.9,
+          "relative_humidity_2m": 68,
+          "precipitation_probability": 47,
+          "precipitation": 0.1,
+          "wind_speed_10m": 8.6,
+          "wind_gusts_10m": 24.1
+        },
+        {
+          "time": "2026-09-15T14:00:00+07:00",
+          "temperature_2m": 27.1,
+          "relative_humidity_2m": 81,
+          "precipitation_probability": 60,
+          "precipitation": 1.4,
+          "wind_speed_10m": 13.7,
+          "wind_gusts_10m": 29.2
+        },
+        {
+          "time": "2026-09-15T15:00:00+07:00",
+          "temperature_2m": 26.1,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 72,
+          "precipitation": 1.7,
+          "wind_speed_10m": 2.0,
+          "wind_gusts_10m": 30.6
+        },
+        {
+          "time": "2026-09-15T16:00:00+07:00",
+          "temperature_2m": 27.2,
+          "relative_humidity_2m": 82,
+          "precipitation_probability": 80,
+          "precipitation": 0.2,
+          "wind_speed_10m": 5.1,
+          "wind_gusts_10m": 13.3
+        },
+        {
+          "time": "2026-09-15T17:00:00+07:00",
+          "temperature_2m": 26.5,
+          "relative_humidity_2m": 84,
+          "precipitation_probability": 83,
+          "precipitation": 0.2,
+          "wind_speed_10m": 6.2,
+          "wind_gusts_10m": 16.2
+        },
+        {
+          "time": "2026-09-15T18:00:00+07:00",
+          "temperature_2m": 24.8,
+          "relative_humidity_2m": 93,
+          "precipitation_probability": 83,
+          "precipitation": 0.0,
+          "wind_speed_10m": 5.3,
+          "wind_gusts_10m": 11.5
+        },
+        {
+          "time": "2026-09-15T19:00:00+07:00",
+          "temperature_2m": 23.9,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 80,
+          "precipitation": 0.7,
+          "wind_speed_10m": 1.5,
+          "wind_gusts_10m": 22.7
+        },
+        {
+          "time": "2026-09-15T20:00:00+07:00",
+          "temperature_2m": 23.7,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 75,
+          "precipitation": 0.4,
+          "wind_speed_10m": 1.1,
+          "wind_gusts_10m": 10.4
+        },
+        {
+          "time": "2026-09-15T21:00:00+07:00",
+          "temperature_2m": 23.6,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 67,
+          "precipitation": 0.1,
+          "wind_speed_10m": 2.3,
+          "wind_gusts_10m": 4.0
+        },
+        {
+          "time": "2026-09-15T22:00:00+07:00",
+          "temperature_2m": 23.7,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 57,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.8,
+          "wind_gusts_10m": 4.0
+        },
+        {
+          "time": "2026-09-15T23:00:00+07:00",
+          "temperature_2m": 23.4,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 45,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.3,
+          "wind_gusts_10m": 3.2
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "c4405e22-5a2a-4183-bb4f-5d016a77e353",
+    "case_id": "TC02",
+    "query": "Xem dự báo thời tiết trong 3 ngày tới tại tọa độ 12.6667, 108.05 ở Đắk Lắk.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 2,
+    "action_type": "FINAL_ANSWER",
+    "timestamp": "2026-09-13T14:58:55.488730+07:00",
+    "latency_ms": 9645.13,
+    "thought": "LLM trả lời từ ngữ cảnh và kết quả công cụ.",
+    "output": "Dự báo 3 ngày tới tại tọa độ **12.6667, 108.05** (Đắk Lắk):\n\n**Chiều/tối 13/09**\n- Khả năng mưa cao: **69–81%** từ 15:00–18:00.\n- Có mưa đáng chú ý lúc **17:00 ~1.1 mm**.\n- Gió nhẹ–vừa, nhưng giật gió có lúc **25–37 km/h**.\n\n**14/09**\n- Sáng ít mưa: khoảng **2–8%** từ 07:00–12:00.\n- Từ chiều mưa tăng mạnh: **55–92%** từ 15:00–20:00.\n- Mưa nhiều nhất khoảng **16:00–19:00**, lượng mưa dự báo **2.7–4.0 mm/giờ**.\n\n**15/09**\n- Sáng sớm đến trưa khá ít mưa: **0–31%** từ 07:00–12:00.\n- Chiều/tối mưa tăng: **60–83%** từ 14:00–18:00.\n- Có mưa rải rác, khoảng **0.2–1.7 mm/giờ**.\n\nNguồn: **Open-Meteo**  \nMúi giờ: **Asia/Ho_Chi_Minh**  \nThời điểm lấy dữ liệu: **2026-09-13T14:58:45.840853+07:00**  \nLưu ý: Dự báo có thể thay đổi; dữ liệu này không dùng để kết luận an toàn phun thuốc."
+  },
+  {
+    "run_id": "d119085c-1e28-487b-b7ec-9d93b9bdc917",
+    "case_id": "TC03",
+    "query": "Ghi lịch kiểm tra hệ thống tưới cho lô CF001 lúc 07:00 ngày mai, ghi chú kiểm tra đầu tưới bị tắc.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "LLM_TOOL_CALLS",
+    "timestamp": "2026-09-13T14:58:58.807179+07:00",
+    "latency_ms": 3318.243,
+    "thought": "LLM đề xuất gọi công cụ; đây là tóm tắt hành động, không phải suy luận nội bộ.",
+    "calls": [
+      {
+        "id": "call_jScXlaksHF1AZ8vb7s9H9j0L",
+        "name": "schedule_farm_task",
+        "arguments": {
+          "plot_id": "CF001",
+          "task_type": "irrigation_inspection",
+          "scheduled_at": "2026-09-14T07:00:00+07:00",
+          "notes": "kiểm tra đầu tưới bị tắc"
+        }
+      }
+    ]
+  },
+  {
+    "run_id": "d119085c-1e28-487b-b7ec-9d93b9bdc917",
+    "case_id": "TC03",
+    "query": "Ghi lịch kiểm tra hệ thống tưới cho lô CF001 lúc 07:00 ngày mai, ghi chú kiểm tra đầu tưới bị tắc.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "TOOL_EXECUTION",
+    "timestamp": "2026-09-13T14:58:58.807255+07:00",
+    "latency_ms": 0.045,
+    "tool_call_id": "call_jScXlaksHF1AZ8vb7s9H9j0L",
+    "tool_name": "schedule_farm_task",
+    "arguments": {
+      "plot_id": "CF001",
+      "task_type": "irrigation_inspection",
+      "scheduled_at": "2026-09-14T07:00:00+07:00",
+      "notes": "kiểm tra đầu tưới bị tắc"
+    },
+    "observation": {
+      "status": "CONFIRMATION_REQUIRED",
+      "proposed_task": {
+        "plot_id": "CF001",
+        "task_type": "irrigation_inspection",
+        "scheduled_at": "2026-09-14T07:00:00+07:00",
+        "notes": "kiểm tra đầu tưới bị tắc"
+      },
+      "message": "Chưa lưu lịch. Cần người dùng xác nhận lịch cụ thể trong CLI."
+    }
+  },
+  {
+    "run_id": "d119085c-1e28-487b-b7ec-9d93b9bdc917",
+    "case_id": "TC03",
+    "query": "Ghi lịch kiểm tra hệ thống tưới cho lô CF001 lúc 07:00 ngày mai, ghi chú kiểm tra đầu tưới bị tắc.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 2,
+    "action_type": "FINAL_ANSWER",
+    "timestamp": "2026-09-13T14:59:02.287666+07:00",
+    "latency_ms": 3480.372,
+    "thought": "LLM trả lời từ ngữ cảnh và kết quả công cụ.",
+    "output": "Chưa lưu lịch. Hệ thống yêu cầu bạn xác nhận lịch cụ thể trong CLI trước khi ghi.\n\nThông tin lịch đề xuất:\n- Lô: CF001\n- Công việc: Kiểm tra hệ thống tưới\n- Thời gian: 07:00 ngày 14/09/2026 (+07:00)\n- Ghi chú: kiểm tra đầu tưới bị tắc"
+  },
+  {
+    "run_id": "2e43bc67-ccbe-4caa-bc30-ad2d9cb6be2f",
+    "case_id": "TC04",
+    "query": "Tra cứu lô CF001 và xem dự báo 3 ngày tới để đề xuất thời điểm phun thuốc. Tôi chưa chọn sản phẩm và chưa chốt giờ; chưa tạo lịch.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "LLM_TOOL_CALLS",
+    "timestamp": "2026-09-13T14:59:04.643244+07:00",
+    "latency_ms": 2355.511,
+    "thought": "LLM đề xuất gọi công cụ; đây là tóm tắt hành động, không phải suy luận nội bộ.",
+    "calls": [
+      {
+        "id": "call_MpD2AG2ZkppIpDAV0usnDSsv",
+        "name": "get_plot_info",
+        "arguments": {
+          "plot_id": "CF001"
+        }
+      }
+    ]
+  },
+  {
+    "run_id": "2e43bc67-ccbe-4caa-bc30-ad2d9cb6be2f",
+    "case_id": "TC04",
+    "query": "Tra cứu lô CF001 và xem dự báo 3 ngày tới để đề xuất thời điểm phun thuốc. Tôi chưa chọn sản phẩm và chưa chốt giờ; chưa tạo lịch.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "TOOL_EXECUTION",
+    "timestamp": "2026-09-13T14:59:04.643390+07:00",
+    "latency_ms": 0.119,
+    "tool_call_id": "call_MpD2AG2ZkppIpDAV0usnDSsv",
+    "tool_name": "get_plot_info",
+    "arguments": {
+      "plot_id": "CF001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "plot_id": "CF001",
+      "data_source": "SIMULATED",
+      "data": {
+        "name": "Lô cà phê mẫu 1",
+        "province": "Đắk Lắk",
+        "latitude": 12.6667,
+        "longitude": 108.05,
+        "coffee_type": "Robusta",
+        "growth_stage": "Nuôi quả (giả định)"
+      }
+    }
+  },
+  {
+    "run_id": "2e43bc67-ccbe-4caa-bc30-ad2d9cb6be2f",
+    "case_id": "TC04",
+    "query": "Tra cứu lô CF001 và xem dự báo 3 ngày tới để đề xuất thời điểm phun thuốc. Tôi chưa chọn sản phẩm và chưa chốt giờ; chưa tạo lịch.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 2,
+    "action_type": "LLM_TOOL_CALLS",
+    "timestamp": "2026-09-13T14:59:07.732651+07:00",
+    "latency_ms": 3089.207,
+    "thought": "LLM đề xuất gọi công cụ; đây là tóm tắt hành động, không phải suy luận nội bộ.",
+    "calls": [
+      {
+        "id": "call_PVHRBZda1HBvMqkanYQWelBF",
+        "name": "get_weather_forecast",
+        "arguments": {
+          "latitude": 12.6667,
+          "longitude": 108.05,
+          "days": 3
+        }
+      }
+    ]
+  },
+  {
+    "run_id": "2e43bc67-ccbe-4caa-bc30-ad2d9cb6be2f",
+    "case_id": "TC04",
+    "query": "Tra cứu lô CF001 và xem dự báo 3 ngày tới để đề xuất thời điểm phun thuốc. Tôi chưa chọn sản phẩm và chưa chốt giờ; chưa tạo lịch.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 2,
+    "action_type": "TOOL_EXECUTION",
+    "timestamp": "2026-09-13T14:59:09.461523+07:00",
+    "latency_ms": 1728.864,
+    "tool_call_id": "call_PVHRBZda1HBvMqkanYQWelBF",
+    "tool_name": "get_weather_forecast",
+    "arguments": {
+      "latitude": 12.6667,
+      "longitude": 108.05,
+      "days": 3
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "source": "Open-Meteo",
+      "source_url": "https://api.open-meteo.com/v1/forecast",
+      "data_source": "LIVE_API",
+      "retrieved_at": "2026-09-13T14:59:09.460614+07:00",
+      "model_updated_at": null,
+      "note": "retrieved_at là lúc lấy dữ liệu, không phải lúc mô hình cập nhật. Dự báo có thể thay đổi; không chứng nhận điều kiện phun thuốc.",
+      "timezone": "Asia/Ho_Chi_Minh",
+      "requested_location": {
+        "latitude": 12.6667,
+        "longitude": 108.05
+      },
+      "units": {
+        "time": "iso8601",
+        "temperature_2m": "°C",
+        "relative_humidity_2m": "%",
+        "precipitation_probability": "%",
+        "precipitation": "mm",
+        "wind_speed_10m": "km/h",
+        "wind_gusts_10m": "km/h"
+      },
+      "hourly": [
+        {
+          "time": "2026-09-13T15:00:00+07:00",
+          "temperature_2m": 29.4,
+          "relative_humidity_2m": 63,
+          "precipitation_probability": 69,
+          "precipitation": 0.0,
+          "wind_speed_10m": 12.4,
+          "wind_gusts_10m": 37.1
+        },
+        {
+          "time": "2026-09-13T16:00:00+07:00",
+          "temperature_2m": 28.1,
+          "relative_humidity_2m": 69,
+          "precipitation_probability": 76,
+          "precipitation": 0.1,
+          "wind_speed_10m": 12.2,
+          "wind_gusts_10m": 28.8
+        },
+        {
+          "time": "2026-09-13T17:00:00+07:00",
+          "temperature_2m": 24.5,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 80,
+          "precipitation": 1.1,
+          "wind_speed_10m": 8.6,
+          "wind_gusts_10m": 25.2
+        },
+        {
+          "time": "2026-09-13T18:00:00+07:00",
+          "temperature_2m": 24.1,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 81,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.8,
+          "wind_gusts_10m": 17.6
+        },
+        {
+          "time": "2026-09-13T19:00:00+07:00",
+          "temperature_2m": 24.5,
+          "relative_humidity_2m": 93,
+          "precipitation_probability": 78,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.2,
+          "wind_gusts_10m": 5.4
+        },
+        {
+          "time": "2026-09-13T20:00:00+07:00",
+          "temperature_2m": 24.7,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 67,
+          "precipitation": 0.1,
+          "wind_speed_10m": 1.5,
+          "wind_gusts_10m": 2.9
+        },
+        {
+          "time": "2026-09-13T21:00:00+07:00",
+          "temperature_2m": 23.8,
+          "relative_humidity_2m": 95,
+          "precipitation_probability": 52,
+          "precipitation": 0.1,
+          "wind_speed_10m": 3.8,
+          "wind_gusts_10m": 7.2
+        },
+        {
+          "time": "2026-09-13T22:00:00+07:00",
+          "temperature_2m": 23.7,
+          "relative_humidity_2m": 95,
+          "precipitation_probability": 39,
+          "precipitation": 0.2,
+          "wind_speed_10m": 1.0,
+          "wind_gusts_10m": 6.1
+        },
+        {
+          "time": "2026-09-13T23:00:00+07:00",
+          "temperature_2m": 23.6,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 33,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.7,
+          "wind_gusts_10m": 2.2
+        },
+        {
+          "time": "2026-09-14T00:00:00+07:00",
+          "temperature_2m": 23.5,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 29,
+          "precipitation": 0.0,
+          "wind_speed_10m": 3.6,
+          "wind_gusts_10m": 5.4
+        },
+        {
+          "time": "2026-09-14T01:00:00+07:00",
+          "temperature_2m": 23.0,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 25,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.4,
+          "wind_gusts_10m": 6.5
+        },
+        {
+          "time": "2026-09-14T02:00:00+07:00",
+          "temperature_2m": 22.8,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 20,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.6,
+          "wind_gusts_10m": 7.2
+        },
+        {
+          "time": "2026-09-14T03:00:00+07:00",
+          "temperature_2m": 22.7,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 15,
+          "precipitation": 0.0,
+          "wind_speed_10m": 3.4,
+          "wind_gusts_10m": 7.2
+        },
+        {
+          "time": "2026-09-14T04:00:00+07:00",
+          "temperature_2m": 22.9,
+          "relative_humidity_2m": 90,
+          "precipitation_probability": 10,
+          "precipitation": 0.0,
+          "wind_speed_10m": 0.9,
+          "wind_gusts_10m": 4.7
+        },
+        {
+          "time": "2026-09-14T05:00:00+07:00",
+          "temperature_2m": 22.9,
+          "relative_humidity_2m": 90,
+          "precipitation_probability": 6,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.3,
+          "wind_gusts_10m": 2.2
+        },
+        {
+          "time": "2026-09-14T06:00:00+07:00",
+          "temperature_2m": 22.7,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 4,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.0,
+          "wind_gusts_10m": 5.8
+        },
+        {
+          "time": "2026-09-14T07:00:00+07:00",
+          "temperature_2m": 24.2,
+          "relative_humidity_2m": 87,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.8,
+          "wind_gusts_10m": 14.8
+        },
+        {
+          "time": "2026-09-14T08:00:00+07:00",
+          "temperature_2m": 25.6,
+          "relative_humidity_2m": 82,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.2,
+          "wind_gusts_10m": 17.3
+        },
+        {
+          "time": "2026-09-14T09:00:00+07:00",
+          "temperature_2m": 27.0,
+          "relative_humidity_2m": 75,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 6.1,
+          "wind_gusts_10m": 18.7
+        },
+        {
+          "time": "2026-09-14T10:00:00+07:00",
+          "temperature_2m": 28.2,
+          "relative_humidity_2m": 69,
+          "precipitation_probability": 4,
+          "precipitation": 0.0,
+          "wind_speed_10m": 9.2,
+          "wind_gusts_10m": 28.8
+        },
+        {
+          "time": "2026-09-14T11:00:00+07:00",
+          "temperature_2m": 28.4,
+          "relative_humidity_2m": 68,
+          "precipitation_probability": 6,
+          "precipitation": 0.1,
+          "wind_speed_10m": 6.8,
+          "wind_gusts_10m": 28.4
+        },
+        {
+          "time": "2026-09-14T12:00:00+07:00",
+          "temperature_2m": 29.4,
+          "relative_humidity_2m": 65,
+          "precipitation_probability": 8,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.1,
+          "wind_gusts_10m": 24.1
+        },
+        {
+          "time": "2026-09-14T13:00:00+07:00",
+          "temperature_2m": 30.0,
+          "relative_humidity_2m": 64,
+          "precipitation_probability": 16,
+          "precipitation": 0.0,
+          "wind_speed_10m": 5.3,
+          "wind_gusts_10m": 25.2
+        },
+        {
+          "time": "2026-09-14T14:00:00+07:00",
+          "temperature_2m": 27.8,
+          "relative_humidity_2m": 77,
+          "precipitation_probability": 33,
+          "precipitation": 0.8,
+          "wind_speed_10m": 8.0,
+          "wind_gusts_10m": 28.4
+        },
+        {
+          "time": "2026-09-14T15:00:00+07:00",
+          "temperature_2m": 26.1,
+          "relative_humidity_2m": 82,
+          "precipitation_probability": 55,
+          "precipitation": 2.2,
+          "wind_speed_10m": 3.3,
+          "wind_gusts_10m": 20.2
+        },
+        {
+          "time": "2026-09-14T16:00:00+07:00",
+          "temperature_2m": 24.5,
+          "relative_humidity_2m": 92,
+          "precipitation_probability": 73,
+          "precipitation": 3.5,
+          "wind_speed_10m": 6.7,
+          "wind_gusts_10m": 18.0
+        },
+        {
+          "time": "2026-09-14T17:00:00+07:00",
+          "temperature_2m": 24.6,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 84,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.4,
+          "wind_gusts_10m": 18.4
+        },
+        {
+          "time": "2026-09-14T18:00:00+07:00",
+          "temperature_2m": 23.2,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 91,
+          "precipitation": 4.0,
+          "wind_speed_10m": 1.8,
+          "wind_gusts_10m": 15.8
+        },
+        {
+          "time": "2026-09-14T19:00:00+07:00",
+          "temperature_2m": 23.0,
+          "relative_humidity_2m": 98,
+          "precipitation_probability": 92,
+          "precipitation": 2.7,
+          "wind_speed_10m": 7.1,
+          "wind_gusts_10m": 12.2
+        },
+        {
+          "time": "2026-09-14T20:00:00+07:00",
+          "temperature_2m": 23.1,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 85,
+          "precipitation": 0.8,
+          "wind_speed_10m": 4.1,
+          "wind_gusts_10m": 13.0
+        },
+        {
+          "time": "2026-09-14T21:00:00+07:00",
+          "temperature_2m": 23.1,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 71,
+          "precipitation": 0.1,
+          "wind_speed_10m": 3.9,
+          "wind_gusts_10m": 7.9
+        },
+        {
+          "time": "2026-09-14T22:00:00+07:00",
+          "temperature_2m": 23.0,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 57,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.2,
+          "wind_gusts_10m": 6.8
+        },
+        {
+          "time": "2026-09-14T23:00:00+07:00",
+          "temperature_2m": 22.9,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 43,
+          "precipitation": 0.0,
+          "wind_speed_10m": 3.5,
+          "wind_gusts_10m": 6.1
+        },
+        {
+          "time": "2026-09-15T00:00:00+07:00",
+          "temperature_2m": 22.5,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 28,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.0,
+          "wind_gusts_10m": 11.9
+        },
+        {
+          "time": "2026-09-15T01:00:00+07:00",
+          "temperature_2m": 22.4,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 16,
+          "precipitation": 0.0,
+          "wind_speed_10m": 6.9,
+          "wind_gusts_10m": 12.2
+        },
+        {
+          "time": "2026-09-15T02:00:00+07:00",
+          "temperature_2m": 22.4,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 10,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.7,
+          "wind_gusts_10m": 11.5
+        },
+        {
+          "time": "2026-09-15T03:00:00+07:00",
+          "temperature_2m": 22.3,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 6,
+          "precipitation": 0.0,
+          "wind_speed_10m": 6.5,
+          "wind_gusts_10m": 10.4
+        },
+        {
+          "time": "2026-09-15T04:00:00+07:00",
+          "temperature_2m": 22.1,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 4,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.5,
+          "wind_gusts_10m": 13.3
+        },
+        {
+          "time": "2026-09-15T05:00:00+07:00",
+          "temperature_2m": 22.0,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 2,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.4,
+          "wind_gusts_10m": 12.6
+        },
+        {
+          "time": "2026-09-15T06:00:00+07:00",
+          "temperature_2m": 22.2,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 1,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.7,
+          "wind_gusts_10m": 12.6
+        },
+        {
+          "time": "2026-09-15T07:00:00+07:00",
+          "temperature_2m": 23.5,
+          "relative_humidity_2m": 95,
+          "precipitation_probability": 0,
+          "precipitation": 0.0,
+          "wind_speed_10m": 7.4,
+          "wind_gusts_10m": 15.5
+        },
+        {
+          "time": "2026-09-15T08:00:00+07:00",
+          "temperature_2m": 25.1,
+          "relative_humidity_2m": 88,
+          "precipitation_probability": 0,
+          "precipitation": 0.0,
+          "wind_speed_10m": 4.5,
+          "wind_gusts_10m": 15.1
+        },
+        {
+          "time": "2026-09-15T09:00:00+07:00",
+          "temperature_2m": 27.2,
+          "relative_humidity_2m": 77,
+          "precipitation_probability": 0,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.3,
+          "wind_gusts_10m": 13.7
+        },
+        {
+          "time": "2026-09-15T10:00:00+07:00",
+          "temperature_2m": 28.5,
+          "relative_humidity_2m": 68,
+          "precipitation_probability": 2,
+          "precipitation": 0.1,
+          "wind_speed_10m": 5.1,
+          "wind_gusts_10m": 16.6
+        },
+        {
+          "time": "2026-09-15T11:00:00+07:00",
+          "temperature_2m": 29.3,
+          "relative_humidity_2m": 64,
+          "precipitation_probability": 14,
+          "precipitation": 0.2,
+          "wind_speed_10m": 7.7,
+          "wind_gusts_10m": 20.5
+        },
+        {
+          "time": "2026-09-15T12:00:00+07:00",
+          "temperature_2m": 29.8,
+          "relative_humidity_2m": 65,
+          "precipitation_probability": 31,
+          "precipitation": 0.3,
+          "wind_speed_10m": 9.4,
+          "wind_gusts_10m": 24.1
+        },
+        {
+          "time": "2026-09-15T13:00:00+07:00",
+          "temperature_2m": 29.9,
+          "relative_humidity_2m": 68,
+          "precipitation_probability": 47,
+          "precipitation": 0.1,
+          "wind_speed_10m": 8.6,
+          "wind_gusts_10m": 24.1
+        },
+        {
+          "time": "2026-09-15T14:00:00+07:00",
+          "temperature_2m": 27.1,
+          "relative_humidity_2m": 81,
+          "precipitation_probability": 60,
+          "precipitation": 1.4,
+          "wind_speed_10m": 13.7,
+          "wind_gusts_10m": 29.2
+        },
+        {
+          "time": "2026-09-15T15:00:00+07:00",
+          "temperature_2m": 26.1,
+          "relative_humidity_2m": 91,
+          "precipitation_probability": 72,
+          "precipitation": 1.7,
+          "wind_speed_10m": 2.0,
+          "wind_gusts_10m": 30.6
+        },
+        {
+          "time": "2026-09-15T16:00:00+07:00",
+          "temperature_2m": 27.2,
+          "relative_humidity_2m": 82,
+          "precipitation_probability": 80,
+          "precipitation": 0.2,
+          "wind_speed_10m": 5.1,
+          "wind_gusts_10m": 13.3
+        },
+        {
+          "time": "2026-09-15T17:00:00+07:00",
+          "temperature_2m": 26.5,
+          "relative_humidity_2m": 84,
+          "precipitation_probability": 83,
+          "precipitation": 0.2,
+          "wind_speed_10m": 6.2,
+          "wind_gusts_10m": 16.2
+        },
+        {
+          "time": "2026-09-15T18:00:00+07:00",
+          "temperature_2m": 24.8,
+          "relative_humidity_2m": 93,
+          "precipitation_probability": 83,
+          "precipitation": 0.0,
+          "wind_speed_10m": 5.3,
+          "wind_gusts_10m": 11.5
+        },
+        {
+          "time": "2026-09-15T19:00:00+07:00",
+          "temperature_2m": 23.9,
+          "relative_humidity_2m": 96,
+          "precipitation_probability": 80,
+          "precipitation": 0.7,
+          "wind_speed_10m": 1.5,
+          "wind_gusts_10m": 22.7
+        },
+        {
+          "time": "2026-09-15T20:00:00+07:00",
+          "temperature_2m": 23.7,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 75,
+          "precipitation": 0.4,
+          "wind_speed_10m": 1.1,
+          "wind_gusts_10m": 10.4
+        },
+        {
+          "time": "2026-09-15T21:00:00+07:00",
+          "temperature_2m": 23.6,
+          "relative_humidity_2m": 97,
+          "precipitation_probability": 67,
+          "precipitation": 0.1,
+          "wind_speed_10m": 2.3,
+          "wind_gusts_10m": 4.0
+        },
+        {
+          "time": "2026-09-15T22:00:00+07:00",
+          "temperature_2m": 23.7,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 57,
+          "precipitation": 0.0,
+          "wind_speed_10m": 1.8,
+          "wind_gusts_10m": 4.0
+        },
+        {
+          "time": "2026-09-15T23:00:00+07:00",
+          "temperature_2m": 23.4,
+          "relative_humidity_2m": 94,
+          "precipitation_probability": 45,
+          "precipitation": 0.0,
+          "wind_speed_10m": 2.3,
+          "wind_gusts_10m": 3.2
+        }
+      ]
+    }
+  },
+  {
+    "run_id": "2e43bc67-ccbe-4caa-bc30-ad2d9cb6be2f",
+    "case_id": "TC04",
+    "query": "Tra cứu lô CF001 và xem dự báo 3 ngày tới để đề xuất thời điểm phun thuốc. Tôi chưa chọn sản phẩm và chưa chốt giờ; chưa tạo lịch.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 3,
+    "action_type": "FINAL_ANSWER",
+    "timestamp": "2026-09-13T14:59:19.534432+07:00",
+    "latency_ms": 10072.907,
+    "thought": "LLM trả lời từ ngữ cảnh và kết quả công cụ.",
+    "output": "**Lô CF001**: Lô cà phê mẫu 1, Đắk Lắk, Robusta, giai đoạn nuôi quả (giả định). Tọa độ: 12.6667, 108.05.  \nDữ liệu lô: **mô phỏng**.\n\n**Gợi ý thời điểm phun dựa trên dự báo 3 ngày tới** — chưa tạo lịch:\n\n1. **Ưu tiên: 2026-09-15 07:00–10:00**\n   - Mưa: 0–2%\n   - Lượng mưa: 0–0.1 mm\n   - Gió: khoảng 2.3–7.4 km/h, giật 13.7–16.6 km/h\n   - Nhiệt độ: 23.5–28.5°C\n\n2. **Phương án khác: 2026-09-14 07:00–10:00**\n   - Mưa: 2–4%\n   - Lượng mưa: 0 mm\n   - Gió: 6.1–9.2 km/h, giật 14.8–28.8 km/h\n   - Sau 14:00 khả năng mưa tăng rõ, không nên chọn buổi chiều.\n\n**Lưu ý quan trọng:** Chưa thể khẳng định “an toàn phun” chỉ từ thời tiết. Anh/chị cần chọn **sản phẩm**, kiểm tra **nhãn thuốc**: ngưỡng gió, thời gian khô trước mưa, nhiệt độ/ẩm phù hợp, bảo hộ, thời gian cách ly và liều lượng theo nhãn. Tôi không tự chọn thuốc hoặc liều.\n\nNguồn thời tiết: **Open-Meteo**, múi giờ **Asia/Ho_Chi_Minh**.  \nretrieved_at: **2026-09-13T14:59:09.460614+07:00**. Dự báo có thể thay đổi."
+  },
+  {
+    "run_id": "8384a7f4-2496-490d-9934-6c97bbeb8cfa",
+    "case_id": "TC05",
+    "query": "Tra cứu lô CF999 và ghi lịch kiểm tra hệ thống tưới lúc 07:00 ngày mai.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "LLM_TOOL_CALLS",
+    "timestamp": "2026-09-13T14:59:21.744872+07:00",
+    "latency_ms": 2210.25,
+    "thought": "LLM đề xuất gọi công cụ; đây là tóm tắt hành động, không phải suy luận nội bộ.",
+    "calls": [
+      {
+        "id": "call_wwE8sX3XleeqOTXZib9W8E3Y",
+        "name": "get_plot_info",
+        "arguments": {
+          "plot_id": "CF999"
+        }
+      }
+    ]
+  },
+  {
+    "run_id": "8384a7f4-2496-490d-9934-6c97bbeb8cfa",
+    "case_id": "TC05",
+    "query": "Tra cứu lô CF999 và ghi lịch kiểm tra hệ thống tưới lúc 07:00 ngày mai.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 1,
+    "action_type": "TOOL_EXECUTION",
+    "timestamp": "2026-09-13T14:59:21.744939+07:00",
+    "latency_ms": 0.048,
+    "tool_call_id": "call_wwE8sX3XleeqOTXZib9W8E3Y",
+    "tool_name": "get_plot_info",
+    "arguments": {
+      "plot_id": "CF999"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "message": "Không tìm thấy lô CF999."
+    }
+  },
+  {
+    "run_id": "8384a7f4-2496-490d-9934-6c97bbeb8cfa",
+    "case_id": "TC05",
+    "query": "Tra cứu lô CF999 và ghi lịch kiểm tra hệ thống tưới lúc 07:00 ngày mai.",
+    "provider": "NineRouterProvider",
+    "model": "cx/gpt-5.5",
+    "mode": "LIVE_API",
+    "step": 2,
+    "action_type": "FINAL_ANSWER",
+    "timestamp": "2026-09-13T14:59:25.054065+07:00",
+    "latency_ms": 3309.112,
+    "thought": "LLM trả lời từ ngữ cảnh và kết quả công cụ.",
+    "output": "Không tìm thấy lô CF999 trong dữ liệu lô mô phỏng, nên mình chưa thể ghi lịch kiểm tra hệ thống tưới cho lô này.\n\nNguồn dữ liệu lô: mô phỏng."
+  }
+]

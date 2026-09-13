@@ -1,233 +1,195 @@
-"""
-🚀 CORE AGENT APPLICATION (DAY 03: CHATBOT VS REACT AGENT)
-Thực thi so sánh giữa Chatbot Baseline (Cấp 2) và ReAct Agent kết nối MCP Server (Cấp 3).
-"""
-
+"""ReAct nhiều bước cho trợ lý cà phê; trace riêng cho từng lần chạy."""
+import argparse
+from datetime import datetime
 import json
-import os
-import sys
+from pathlib import Path
 import time
-from dotenv import load_dotenv
+from uuid import uuid4
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from mcp_server import MCPFarmServer
+from prompts import CHATBOT_BASELINE_PROMPT, REACT_AGENT_SYSTEM_PROMPT, MAX_ITERATIONS
+from providers import get_llm_provider, ProviderError
+from tools import TIMEZONE, validate_arguments
 
-if sys.stdout.encoding != 'utf-8':
-    try:
-        sys.stdout.reconfigure(encoding='utf-8')
-    except Exception:
-        pass
+ROOT = Path(__file__).resolve().parents[1]
 
-from mcp_server import MCPAcademicServer
-from prompts import (
-    CHATBOT_BASELINE_PROMPT,
-    REACT_AGENT_SYSTEM_PROMPT,
-    MAX_ITERATIONS
-)
-from providers import get_llm_provider
-
-load_dotenv()
 
 def load_test_cases():
-    """Tải danh sách 5 test cases từ config/test_cases.json hoặc config/test_cases.example.json"""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    config_path = os.path.join(base_dir, "config", "test_cases.json")
-    if not os.path.exists(config_path):
-        example_path = os.path.join(base_dir, "config", "test_cases.example.json")
-        if os.path.exists(example_path):
-            print("⚠️ [CONFIG NOTICE]: Chưa thấy file 'config/test_cases.json'. Đang dùng mẫu 'config/test_cases.example.json'.")
-            print("👉 Hãy chạy: copy config/test_cases.example.json config/test_cases.json và viết test cases theo đề tài của bạn!\n")
-            config_path = example_path
-        else:
-            config_path = "test_cases.json"
-    with open(config_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    with (ROOT / 'config/test_cases.json').open(encoding='utf-8') as file:
+        return json.load(file)
 
 
-def save_waterfall_trace(trace_data: list):
-    """Ghi vết log Waterfall Trace Log ra file docs/trace_waterfall.json"""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    docs_dir = os.path.join(base_dir, "docs")
-    os.makedirs(docs_dir, exist_ok=True)
-    trace_path = os.path.join(docs_dir, "trace_waterfall.json")
-    with open(trace_path, "w", encoding="utf-8") as f:
-        json.dump(trace_data, f, ensure_ascii=False, indent=2)
-    print(f"📊 [OBSERVABILITY]: Đã lưu {len(trace_data)} sự kiện Waterfall Trace tại '{trace_path}'!")
+def save_waterfall_trace(trace_data, path=None):
+    # Không ghi đè trace cũ: mỗi lần lưu tạo file mới, kể cả khi truyền --trace.
+    target = Path(path) if path else ROOT / 'docs/traces' / f'trace-{uuid4()}.json'
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open('x', encoding='utf-8') as file:
+        json.dump(trace_data, file, ensure_ascii=False, indent=2)
+    print(f'Trace: {target}')
+    return target
 
 
-def run_baseline_chatbot(user_query: str, provider):
-    """Chạy Chatbot gốc (Cấp 2) không có công cụ gọi Tool"""
-    print(f"\n💬 [CHATBOT BASELINE] Câu hỏi: {user_query}")
-    response = provider.generate(user_query, system_prompt=CHATBOT_BASELINE_PROMPT)
-    print(f"🤖 Chatbot phản hồi:\n{response}")
+def run_baseline_chatbot(user_query, provider):
+    answer = provider.generate(user_query, system_prompt=CHATBOT_BASELINE_PROMPT)
+    print(f'Chatbot: {answer}')
+    return answer
 
 
-def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) -> list:
+def run_react_agent(user_query, provider, mcp_server, history=None, confirm_schedule=None,
+                    max_iterations=MAX_ITERATIONS, case_id=None, system_prompt=None,
+                    on_event=None):
+    """history thuộc một phiên; mỗi tool call luôn có Observation tương ứng.
+
+    confirm_schedule nhận tham số lịch cụ thể, trả True nếu người dùng đồng ý.
+    Mặc định không ghi lịch. Test có thể truyền callback cho phép trên DB riêng.
     """
-    [REACT AGENT LOOP] Thực thi vòng lặp Thought -> Action -> Observation với MCP Server
-    Trả về danh sách trace log của phiên thực thi.
-    """
-    print(f"\n🤖 [REACT AGENT] Câu hỏi: {user_query}")
-    
-    step = 0
-    trace_logs = []
-    tools_list = mcp_server.list_tools()
-    
-    while step < MAX_ITERATIONS:
-        step += 1
-        step_start_time = time.time()
-        print(f"\n--- 🔄 Vòng lặp ReAct Loop (Step {step}/{MAX_ITERATIONS}) ---")
-        
-        # Gọi LLM với Native Tool Calling Specs
-        llm_response = provider.generate_with_tools(user_query, tools_list, system_prompt=REACT_AGENT_SYSTEM_PROMPT)
-        latency_ms = round((time.time() - step_start_time) * 1000, 2)
-        
-        thought = llm_response.get("thought", "Đang suy luận...")
-        print(f"🧠 [Thought]: {thought}")
-        
-        # Trường hợp 1: LLM quyết định trả lời bằng văn bản trực tiếp
-        if llm_response.get("type") == "text":
-            final_content = llm_response.get("content", "")
-            print(f"🏁 [Final Answer]: {final_content}")
-            trace_logs.append({
-                "step": step,
-                "query": user_query,
-                "action_type": "FINAL_ANSWER",
-                "thought": thought,
-                "output": final_content,
-                "latency_ms": latency_ms
-            })
-            break
-            
-        # Trường hợp 2: LLM đề xuất gọi Tool (Action)
-        elif llm_response.get("type") == "tool_call":
-            tool_name = llm_response.get("tool_name")
-            arguments = llm_response.get("arguments", {})
-            
-            print(f"🛠️ [Action Proposed]: {tool_name}({arguments})")
-            
-            # Thực thi Tool qua MCP Server
-            mcp_result = mcp_server.call_tool(tool_name, arguments)
-            obs_data = mcp_result.get("result", {})
-            
-            if not obs_data:
-                print(f"👁️ [Observation từ MCP Server]: {{}}")
-                print(f"⚠️ [CHÚ Ý]: MCP Server trả về kết quả rỗng! Học viên cần hoàn thành TODO 2.1 trong 'src/mcp_server.py'.")
-                final_answer = "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1)."
-            else:
-                obs_str = json.dumps(obs_data, ensure_ascii=False)
-                print(f"👁️ [Observation từ MCP Server]: {obs_str}")
-                
-                # Tổng hợp Final Answer từ kết quả Observation thực tế
-                if obs_data.get("status") == "SUCCESS":
-                    if "data" in obs_data:
-                        d = obs_data["data"]
-                        final_answer = (
-                            f"Kết quả tra cứu cho sinh viên {obs_data.get('student_id', '')} ({d.get('full_name', '')}): "
-                            f"Lớp {d.get('class', '')}, GPA: {d.get('gpa', '')}, Email: {d.get('email', '')}, "
-                            f"Trạng thái: {d.get('status', '')}, Cố vấn: {d.get('advisor', '')}."
-                        )
-                    elif "message" in obs_data:
-                        final_answer = obs_data["message"]
-                    else:
-                        final_answer = f"Đã hoàn tất xử lý qua MCP Server: {json.dumps(obs_data, ensure_ascii=False)}"
-                elif obs_data.get("status") == "NOT_FOUND":
-                    final_answer = obs_data.get("message", "Không tìm thấy thông tin sinh viên yêu cầu.")
-                else:
-                    final_answer = f"Phản hồi từ công cụ: {json.dumps(obs_data, ensure_ascii=False)}"
-            
-            trace_logs.append({
-                "step": step,
-                "query": user_query,
-                "action_type": "TOOL_EXECUTION",
-                "tool_name": tool_name,
-                "arguments": arguments,
-                "observation": obs_data,
-                "latency_ms": latency_ms
-            })
-            
-            # Kết thúc vòng lặp sau khi hoàn tất Observation và xuất Final Answer
-            print(f"🧠 [Thought]: Đã nhận được dữ liệu từ MCP Server. Tổng hợp kết quả phản hồi.")
-            print(f"🏁 [Final Answer]: {final_answer}")
-            
-            trace_logs.append({
-                "step": step + 1,
-                "query": user_query,
-                "action_type": "FINAL_ANSWER",
-                "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-                "output": final_answer,
-                "latency_ms": 10.0
-            })
-            break
+    history = history if history is not None else []
+    history.append({'role': 'user', 'content': user_query})
+    trace = []
+    run_id = str(uuid4())
+    prompt = (system_prompt or REACT_AGENT_SYSTEM_PROMPT) + (
+        '\nThời gian hiện tại: ' + datetime.now(TIMEZONE).isoformat())
+    metadata = {'run_id': run_id, 'case_id': case_id, 'query': user_query,
+                'provider': type(provider).__name__, 'model': provider.model_name,
+                'mode': 'MOCK' if provider.is_mock else 'LIVE_API'}
 
-    return trace_logs
+    def event(step, kind, started, **data):
+        record = {**metadata, 'step': step, 'action_type': kind,
+                  'timestamp': datetime.now(TIMEZONE).isoformat(),
+                  'latency_ms': round((time.perf_counter() - started) * 1000, 3), **data}
+        trace.append(record)
+        if on_event:
+            on_event(record)
+
+    for step in range(1, max_iterations + 1):
+        started = time.perf_counter()
+        print(f'Bước {step}/{max_iterations}: đang gọi {type(provider).__name__}...')
+        if on_event:
+            on_event({**metadata, 'step': step, 'action_type': 'LLM_STARTED',
+                      'timestamp': datetime.now(TIMEZONE).isoformat()})
+        try:
+            reply = provider.generate_with_tools(history, mcp_server.list_tools(), system_prompt=prompt)
+            calls = reply['calls']
+            if not isinstance(calls, list) or len(calls) > 8:
+                raise ProviderError('Danh sách tool call không hợp lệ hoặc vượt giới hạn 8.')
+            ids = []
+            for call in calls:
+                if not isinstance(call, dict) or not isinstance(call.get('id'), str) or not isinstance(call.get('name'), str):
+                    raise ProviderError('Tool call không hợp lệ.')
+                ids.append(call['id'])
+            if len(ids) != len(set(ids)):
+                raise ProviderError('Tool call ID bị trùng.')
+            if not calls and not reply.get('content', '').strip():
+                raise ProviderError('LLM trả phản hồi rỗng.')
+        except Exception as exc:
+            message = str(exc) if isinstance(exc, ProviderError) else f'Lỗi phản hồi LLM ({type(exc).__name__}).'
+            event(step, 'ERROR', started, output=message)
+            history.append({'role': 'assistant', 'content': message})
+            print(message)
+            return trace
+        history.append(reply['assistant'])
+        if not calls:
+            event(step, 'FINAL_ANSWER', started, thought='LLM trả lời từ ngữ cảnh và kết quả công cụ.',
+                  output=reply['content'])
+            print('Trợ lý:', reply['content'])
+            return trace
+        event(step, 'LLM_TOOL_CALLS', started,
+              thought='LLM đề xuất gọi công cụ; đây là tóm tắt hành động, không phải suy luận nội bộ.',
+              calls=[{k: c.get(k) for k in ('id', 'name', 'arguments')} for c in calls])
+        for call in calls:
+            tool_start = time.perf_counter()
+            name, args = call['name'], call.get('arguments', {})
+            if on_event:
+                on_event({**metadata, 'step': step, 'action_type': 'TOOL_STARTED',
+                          'timestamp': datetime.now(TIMEZONE).isoformat(),
+                          'tool_call_id': call['id'], 'tool_name': name,
+                          'arguments': args})
+            observation = None
+            if name == 'schedule_farm_task':
+                try:
+                    validate_arguments(name, args)
+                except (ValueError, TypeError) as exc:
+                    observation = {'status': 'INVALID_ARGUMENTS', 'message': str(exc)}
+                if observation is None:
+                    decision = confirm_schedule(dict(args)) if confirm_schedule else None
+                    if decision is None:
+                        observation = {'status': 'CONFIRMATION_REQUIRED', 'proposed_task': args,
+                                       'message': 'Chưa lưu lịch. Hãy xác nhận lịch trên bằng câu “Tôi đồng ý lưu lịch” hoặc bật quyền ghi lịch trong giao diện.'}
+                    elif not decision:
+                        observation = {'status': 'CANCELLED', 'message': 'Người dùng chưa đồng ý, không lưu lịch.'}
+            if observation is None:
+                observation = mcp_server.call_tool(name, args)['result']
+            history.append({'role': 'tool', 'id': call['id'], 'native_id': call.get('native_id'),
+                            'name': name, 'result': observation})
+            event(step, 'TOOL_EXECUTION', tool_start, tool_call_id=call['id'], tool_name=name,
+                  arguments=args, observation=observation)
+            print(f"  {name}: {observation.get('status')}")
+    started = time.perf_counter()
+    message = 'Đã đạt giới hạn vòng lặp; yêu cầu chưa hoàn tất. Xem trace để biết công việc nào đã được ghi nhận.'
+    event(max_iterations, 'ITERATION_LIMIT', started, output=message)
+    history.append({'role': 'assistant', 'content': message})
+    print(message)
+    return trace
 
 
-if __name__ == "__main__":
-    print("==========================================================")
-    print("🏫 VINUNI AI COURSE - DAY 03 LAB: CHATBOT VS REACT AGENT")
-    print("==========================================================")
-    
-    provider = get_llm_provider()
-    mcp_server = MCPAcademicServer()
-    
-    print(f"🔌 LLM Provider: {provider.__class__.__name__}")
-    print(f"🌐 MCP Server: {mcp_server.server_name}\n")
-    
-    tests = load_test_cases()
-    print(f"✅ Đã tải thành công {len(tests)} Test Cases thử nghiệm.\n")
-    
-    if "--interactive" in sys.argv:
-        print("🎮 [INTERACTIVE MODE] Trò chuyện trực tiếp với ReAct Agent:")
-        print("💡 Gợi ý câu hỏi thử nghiệm:")
-        print("   - Câu hỏi chung: 'Quy chế học vụ VinUni yêu cầu bao nhiêu tín chỉ?'")
-        print("   - Tra cứu học vụ: 'Hãy tra cứu thông tin học vụ của sinh viên SV2026001'")
-        print("   - Đặt lịch hẹn: 'Đặt lịch hẹn tư vấn cho SV2026001 vào 14:00 ngày 15/09/2026'")
-        print("   - Gõ 'exit' hoặc 'quit' để kết thúc phiên trò chuyện.\n")
-        while True:
-            try:
-                user_input = input("👤 Sinh viên hỏi: ").strip()
-                if not user_input or user_input.lower() in ["exit", "quit"]:
-                    print("👋 Tạm biệt! Kết thúc phiên trò chuyện.")
+def confirm_in_cli(arguments):
+    print('Lịch đề xuất:', json.dumps(arguments, ensure_ascii=False, indent=2))
+    try:
+        return input('Lưu lịch này? Gõ yes để lưu: ').strip().lower() == 'yes'
+    except (EOFError, KeyboardInterrupt):
+        return False
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Trợ lý chăm sóc cà phê')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--interactive', action='store_true')
+    mode.add_argument('--all', action='store_true')
+    parser.add_argument('--baseline', action='store_true', help='So sánh chatbot với cùng câu hỏi')
+    parser.add_argument('--confirm-schedules', action='store_true',
+                        help='Hỏi xác nhận lịch cụ thể trong chế độ --all')
+    parser.add_argument('--trace', help='File trace mới; không được tồn tại trước')
+    args = parser.parse_args()
+    if args.trace and Path(args.trace).exists():
+        parser.error('File trace đã tồn tại. Chọn tên mới để giữ dữ liệu cũ.')
+    try:
+        provider = get_llm_provider()
+    except ProviderError as exc:
+        print(exc)
+        return 1
+    print(f'Provider: {type(provider).__name__} | Model: {provider.model_name}')
+    server, history, traces = MCPFarmServer(), [], []
+    try:
+        if args.interactive:
+            print('Nhập câu hỏi; exit/quit để thoát. Lịch sử giữ trong phiên này.')
+            while True:
+                query = input('Bạn: ').strip()
+                if query.lower() in ('exit', 'quit'):
                     break
-                logs = run_react_agent(user_input, provider, mcp_server)
-                save_waterfall_trace(logs)
-            except (KeyboardInterrupt, EOFError):
-                print("\n👋 Đã thoát phiên tương tác.")
-                break
-    elif "--all" in sys.argv:
-        print("🚀 [TEST SUITE MODE] Kiểm tra 5 Test Cases:")
-        completed_count = 0
-        todo_count = 0
-        all_traces = []
-        
-        for tc in tests:
-            print(f"\n==================================================")
-            print(f"🧪 [{tc['id']}] Loại test: {tc['type']} (Độ phức tạp: {tc['complexity']})")
-            print(f"📌 Kỳ vọng: {tc['expected_behavior']}")
-            
-            if tc["question"].strip().startswith("TODO"):
-                print(f"⏸️ [CHƯA KÍCH HOẠT - ĐANG LÀ TODO]:")
-                print(f"   {tc['question']}")
-                print(f"   👉 Hãy mở file 'config/test_cases.json' để viết câu hỏi thực tế cho Test Case này!")
-                todo_count += 1
-            else:
-                logs = run_react_agent(tc["question"], provider, mcp_server)
-                all_traces.extend(logs)
-                completed_count += 1
-                
-        print(f"\n==================================================")
-        print(f"📊 [KẾT QUẢ TEST SUITE]: Đã thực thi {completed_count}/{len(tests)} Test Cases | {todo_count} Test Cases đang chờ điền câu hỏi (TODO)")
-        if all_traces:
-            save_waterfall_trace(all_traces)
-        print(f"💡 Để trò chuyện trực tiếp từng câu: Chạy 'python src/app.py --interactive'")
-    else:
-        # Chế độ mặc định khi chỉ gõ 'python src/app.py'
-        print("ℹ️ HƯỚNG DẪN SỬ DỤNG CHƯƠNG TRÌNH:")
-        print("  1. Chat trực tiếp liên tục:   python src/app.py --interactive")
-        print("  2. Chạy toàn bộ Test Cases:    python src/app.py --all\n")
-        
-        sample_query = tests[1]["question"]
-        print(f"--- 🏁 DEMO CHẠY THỬ 1 TEST CASE MẪU (TC02: Tra cứu học vụ) ---")
-        logs = run_react_agent(sample_query, provider, mcp_server)
-        save_waterfall_trace(logs)
-        print("\n💡 Hãy thử ngay lệnh: python src/app.py --interactive để chat trực tiếp!")
+                if not query:
+                    continue
+                if args.baseline:
+                    run_baseline_chatbot(query, provider)
+                traces.extend(run_react_agent(query, provider, server, history, confirm_in_cli))
+        else:
+            cases = load_test_cases() if args.all else [load_test_cases()[0]]
+            for case in cases:
+                print(f"\n{case['id']}: {case['question']}")
+                if args.baseline:
+                    run_baseline_chatbot(case['question'], provider)
+                traces.extend(run_react_agent(case['question'], provider, server, case_id=case['id'],
+                    confirm_schedule=confirm_in_cli if args.confirm_schedules else None))
+            print('Đã thực thi; chưa tự chấm đạt. Chế độ --all không ghi lịch nếu chưa có xác nhận.')
+    except (EOFError, KeyboardInterrupt):
+        print('\nĐã dừng phiên.')
+    except ProviderError as exc:
+        print(exc)
+        return 1
+    finally:
+        if traces:
+            save_waterfall_trace(traces, args.trace)
+    return int(any(t['action_type'] in ('ERROR', 'ITERATION_LIMIT') for t in traces))
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

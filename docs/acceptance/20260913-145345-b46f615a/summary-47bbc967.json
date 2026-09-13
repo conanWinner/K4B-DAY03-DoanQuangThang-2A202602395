@@ -1,0 +1,9 @@
+{
+  "started_at": "2026-09-13T14:53:45.281016+07:00",
+  "status": "BLOCKED",
+  "python": "3.13.12",
+  "cases": [],
+  "manual_review_required": true,
+  "scope": "5 ca độc lập; chưa thay thế kiểm tra CLI nhiều lượt hoặc đánh giá nội dung cuối.",
+  "reason": "Chưa cấu hình GEMINI_API_KEY."
+}

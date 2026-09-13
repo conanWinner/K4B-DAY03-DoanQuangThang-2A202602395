@@ -41,6 +41,16 @@ cp config/test_cases.example.json config/test_cases.json
 python src/app.py --all
 ```
 
+### Chạy giao diện quan sát ReAct Agent
+
+Sau khi cấu hình provider trong `.env`, chạy:
+
+```bash
+.venv/bin/python src/web_server.py --port 8080
+```
+
+Mở `http://127.0.0.1:8080`. Giao diện cho phép trò chuyện, chỉnh system prompt cho lượt tiếp theo, xem tool đang được gọi và theo dõi Observation/Final Answer ngay trên màn hình. Tùy chọn ghi lịch chỉ có hiệu lực trong một lượt và tự tắt sau khi gửi.
+
 **Kỳ vọng Output màn hình:**
 ```text
 ✅ [MOCK OFFLINE MODE PASS]: Môi trường đã sẵn sàng! 

@@ -1,0 +1,82 @@
+[
+  {
+    "run_id": "dcb68922-179c-4148-a0dd-dc6a767d40c8",
+    "case_id": null,
+    "query": "Tra cứu CF001",
+    "provider": "MockOfflineProvider",
+    "model": "offline-coffee-demo",
+    "mode": "MOCK",
+    "step": 1,
+    "action_type": "LLM_TOOL_CALLS",
+    "timestamp": "2026-09-13T14:50:45.366319+07:00",
+    "latency_ms": 0.16,
+    "thought": "LLM đề xuất gọi công cụ; đây là tóm tắt hành động, không phải suy luận nội bộ.",
+    "calls": [
+      {
+        "id": "2c07c12c-8d22-4f2c-be81-2746c7e94d28",
+        "name": "get_plot_info",
+        "arguments": {
+          "plot_id": "CF001"
+        }
+      }
+    ]
+  },
+  {
+    "run_id": "dcb68922-179c-4148-a0dd-dc6a767d40c8",
+    "case_id": null,
+    "query": "Tra cứu CF001",
+    "provider": "MockOfflineProvider",
+    "model": "offline-coffee-demo",
+    "mode": "MOCK",
+    "step": 1,
+    "action_type": "TOOL_EXECUTION",
+    "timestamp": "2026-09-13T14:50:45.366406+07:00",
+    "latency_ms": 0.083,
+    "tool_call_id": "2c07c12c-8d22-4f2c-be81-2746c7e94d28",
+    "tool_name": "get_plot_info",
+    "arguments": {
+      "plot_id": "CF001"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "plot_id": "CF001",
+      "data_source": "SIMULATED",
+      "data": {
+        "name": "Lô cà phê mẫu 1",
+        "province": "Đắk Lắk",
+        "latitude": 12.6667,
+        "longitude": 108.05,
+        "coffee_type": "Robusta",
+        "growth_stage": "Nuôi quả (giả định)"
+      }
+    }
+  },
+  {
+    "run_id": "dcb68922-179c-4148-a0dd-dc6a767d40c8",
+    "case_id": null,
+    "query": "Tra cứu CF001",
+    "provider": "MockOfflineProvider",
+    "model": "offline-coffee-demo",
+    "mode": "MOCK",
+    "step": 2,
+    "action_type": "FINAL_ANSWER",
+    "timestamp": "2026-09-13T14:50:45.366512+07:00",
+    "latency_ms": 0.093,
+    "thought": "LLM trả lời từ ngữ cảnh và kết quả công cụ.",
+    "output": "[MOCK] Kết quả công cụ: {\"status\": \"SUCCESS\", \"plot_id\": \"CF001\", \"data_source\": \"SIMULATED\", \"data\": {\"name\": \"Lô cà phê mẫu 1\", \"province\": \"Đắk Lắk\", \"latitude\": 12.6667, \"longitude\": 108.05, \"coffee_type\": \"Robusta\", \"growth_stage\": \"Nuôi quả (giả định)\"}}"
+  },
+  {
+    "run_id": "3c2b95b1-cdc7-46ef-b885-375ecbec9425",
+    "case_id": null,
+    "query": "Bạn hỗ trợ gì?",
+    "provider": "MockOfflineProvider",
+    "model": "offline-coffee-demo",
+    "mode": "MOCK",
+    "step": 1,
+    "action_type": "FINAL_ANSWER",
+    "timestamp": "2026-09-13T14:50:45.366621+07:00",
+    "latency_ms": 0.068,
+    "thought": "LLM trả lời từ ngữ cảnh và kết quả công cụ.",
+    "output": "[MOCK] Tôi hỗ trợ tra cứu lô, xem dự báo và ghi lịch. Demo offline chỉ hỗ trợ tra cứu lô; dùng provider thật để hội thoại đầy đủ."
+  }
+]

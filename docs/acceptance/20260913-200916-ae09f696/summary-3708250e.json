@@ -1,0 +1,24 @@
+{
+  "started_at": "2026-09-13T20:09:16.643770+07:00",
+  "status": "RUNNING",
+  "python": "3.13.12",
+  "cases": [
+    {
+      "id": "TC01",
+      "structural_checks": {
+        "final_answer": true,
+        "no_runtime_error": true,
+        "no_tools": true
+      },
+      "structural_pass": true,
+      "confirmations": [],
+      "manual_verdict": "PENDING",
+      "expected_behavior": "Trả lời phạm vi tra cứu lô, dự báo và ghi lịch; không gọi tool, không bịa dữ liệu thời tiết."
+    }
+  ],
+  "manual_review_required": true,
+  "scope": "5 ca độc lập; chưa thay thế kiểm tra CLI nhiều lượt hoặc đánh giá nội dung cuối.",
+  "provider": "NineRouterProvider",
+  "model": "cx/gpt-5.5",
+  "probe": "Kết nối thành công."
+}
